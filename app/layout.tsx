@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ 
   subsets: ["latin"],
   display: "swap",
-  preload: true,
+  preload: false, // Desabilita preload para evitar avisos do navegador
   adjustFontFallback: true,
 });
 
