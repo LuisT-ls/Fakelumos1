@@ -13,6 +13,7 @@ export function NewsVerifier() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<VerificationResult | null>(null);
+  const [isRateLimited, setIsRateLimited] = useState(false);
 
   const handleVerify = async () => {
     if (!content.trim()) {
@@ -23,6 +24,7 @@ export function NewsVerifier() {
     setLoading(true);
     setError(null);
     setResult(null);
+    setIsRateLimited(false);
 
     try {
       const locale = window.location.pathname.split("/")[1] || "pt-BR";
@@ -39,6 +41,7 @@ export function NewsVerifier() {
         
         // Tratamento específico para rate limiting (429)
         if (response.status === 429 || errorData.errorCode === "RATE_LIMIT_EXCEEDED") {
+          setIsRateLimited(true);
           throw new Error(t("hero.errorRateLimit"));
         }
         
@@ -66,7 +69,13 @@ export function NewsVerifier() {
         window.dispatchEvent(event);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("hero.errorVerify"));
+      const errorMessage = err instanceof Error ? err.message : t("hero.errorVerify");
+      setError(errorMessage);
+      
+      // Se não for rate limit, limpa o flag
+      if (!isRateLimited && !errorMessage.includes("quota")) {
+        setIsRateLimited(false);
+      }
     } finally {
       setLoading(false);
     }
@@ -104,8 +113,19 @@ export function NewsVerifier() {
           </button>
 
           {error && (
-            <div className="mt-4 rounded-md bg-destructive/10 p-4 text-sm text-destructive">
-              {error}
+            <div className={`mt-4 rounded-md p-4 text-sm ${
+              isRateLimited 
+                ? "bg-yellow-500/10 border border-yellow-500/20 text-yellow-600 dark:text-yellow-400" 
+                : "bg-destructive/10 text-destructive"
+            }`}>
+              <div className="flex items-start gap-2">
+                <span>{error}</span>
+              </div>
+              {isRateLimited && (
+                <p className="mt-2 text-xs opacity-80">
+                  💡 Dica: A quota geralmente é resetada a cada minuto. Tente novamente em alguns instantes.
+                </p>
+              )}
             </div>
           )}
 
