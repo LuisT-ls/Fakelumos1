@@ -166,5 +166,16 @@
       "resetFont": "Reset Font"
     },
     "reset": "Restore Default Settings"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you are looking for does not exist or has been moved.",
+    "message": "It seems you found fake news about this page! 😄",
+    "backHome": "Back to Home",
+    "goBack": "Go Back",
+    "usefulLinks": "Useful links:",
+    "howItWorks": "How It Works",
+    "tips": "Tips",
+    "about": "About"
   }
 }

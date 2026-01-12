@@ -166,5 +166,16 @@
       "resetFont": "Restablecer Fuente"
     },
     "reset": "Restaurar Configuración Predeterminada"
+  },
+  "notFound": {
+    "title": "Página No Encontrada",
+    "description": "La página que buscas no existe o ha sido movida.",
+    "message": "¡Parece que encontraste noticias falsas sobre esta página! 😄",
+    "backHome": "Volver al Inicio",
+    "goBack": "Volver",
+    "usefulLinks": "Enlaces útiles:",
+    "howItWorks": "Cómo Funciona",
+    "tips": "Consejos",
+    "about": "Acerca de"
   }
 }
