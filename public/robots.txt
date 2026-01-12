@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://fakelumos.vercel.app/sitemap.xml
+
+# Bloquear páginas de API e arquivos internos
+Disallow: /api/
+Disallow: /_next/
+Disallow: /images/
