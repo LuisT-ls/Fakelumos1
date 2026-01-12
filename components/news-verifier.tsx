@@ -42,9 +42,12 @@ export function NewsVerifier() {
         // Tratamento específico para rate limiting (429)
         if (response.status === 429 || errorData.errorCode === "RATE_LIMIT_EXCEEDED") {
           setIsRateLimited(true);
+          // Não loga erro no console para rate limiting, pois é esperado
           throw new Error(t("hero.errorRateLimit"));
         }
         
+        // Para outros erros, loga normalmente
+        console.error("Erro na verificação:", errorData);
         throw new Error(errorData.error || t("hero.errorVerify"));
       }
 

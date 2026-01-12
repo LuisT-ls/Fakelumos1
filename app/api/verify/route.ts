@@ -42,13 +42,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error("Erro na API:", error);
-    
     // Log detalhado do erro para debug
     if (error instanceof Error) {
-      console.error("Mensagem de erro:", error.message);
-      console.error("Stack trace:", error.stack);
-      
       // Tratamento específico para rate limiting
       if (
         error.message.includes("RATE_LIMIT_EXCEEDED") ||
@@ -56,6 +51,8 @@ export async function POST(request: NextRequest) {
         error.message.includes("Quota exceeded") ||
         error.message.includes("Too Many Requests")
       ) {
+        // Para rate limiting, apenas loga um aviso (não erro)
+        console.warn("Rate limit atingido - quota da API excedida");
         return NextResponse.json(
           {
             error:
@@ -69,6 +66,13 @@ export async function POST(request: NextRequest) {
           { status: 429 }
         );
       }
+      
+      // Para outros erros, loga normalmente
+      console.error("Erro na API:", error);
+      console.error("Mensagem de erro:", error.message);
+      console.error("Stack trace:", error.stack);
+    } else {
+      console.error("Erro na API:", error);
     }
 
     return NextResponse.json(
