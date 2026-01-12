@@ -13,6 +13,7 @@
     "errorEmpty": "Please enter a news item to verify.",
     "errorVerify": "Error verifying news. Please try again.",
     "errorRateLimit": "API quota exceeded. Please wait a few minutes before trying again. If the problem persists, please contact support.",
+    "rateLimitTip": "💡 Tip: The quota is usually reset every minute. Try again in a few moments.",
     "reasons": "Reasons:"
   },
   "history": {

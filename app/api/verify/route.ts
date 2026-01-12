@@ -4,7 +4,7 @@ import { validateUserInput } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
   let locale = "pt-BR";
-  const requestId = Date.now().toString();
+  const requestId = Date.now();
   
   console.log(`[${requestId}] === INÍCIO DA REQUISIÇÃO ===`);
   console.log(`[${requestId}] Timestamp:`, new Date().toISOString());
@@ -52,7 +52,8 @@ export async function POST(request: NextRequest) {
 
     const result = await handleVerification(
       validation.sanitizedText,
-      locale
+      locale,
+      requestId
     );
 
     console.log(`[${requestId}] Verificação concluída com sucesso`);

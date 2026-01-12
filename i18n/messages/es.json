@@ -13,6 +13,7 @@
     "errorEmpty": "Por favor, ingresa una noticia para verificar.",
     "errorVerify": "Error al verificar noticia. Intenta nuevamente.",
     "errorRateLimit": "Se ha excedido la cuota de la API. Por favor, espere unos minutos antes de intentar nuevamente. Si el problema persiste, contacte al soporte.",
+    "rateLimitTip": "💡 Consejo: La cuota generalmente se restablece cada minuto. Intente nuevamente en unos momentos.",
     "reasons": "Razones:"
   },
   "history": {

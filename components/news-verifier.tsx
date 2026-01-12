@@ -126,7 +126,7 @@ export function NewsVerifier() {
               </div>
               {isRateLimited && (
                 <p className="mt-2 text-xs opacity-80">
-                  💡 Dica: A quota geralmente é resetada a cada minuto. Tente novamente em alguns instantes.
+                  {t("hero.rateLimitTip")}
                 </p>
               )}
             </div>

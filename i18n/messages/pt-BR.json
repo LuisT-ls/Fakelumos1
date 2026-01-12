@@ -13,6 +13,7 @@
     "errorEmpty": "Por favor, insira uma notícia para verificar.",
     "errorVerify": "Erro ao verificar notícia. Tente novamente.",
     "errorRateLimit": "A quota da API foi excedida. Por favor, aguarde alguns minutos antes de tentar novamente. Se o problema persistir, entre em contato com o suporte.",
+    "rateLimitTip": "💡 Dica: A quota geralmente é resetada a cada minuto. Tente novamente em alguns instantes.",
     "reasons": "Razões:"
   },
   "history": {

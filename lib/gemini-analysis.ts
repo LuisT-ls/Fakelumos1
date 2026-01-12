@@ -260,13 +260,44 @@ function ajustarGeminiComFontes(
 }
 
 /**
- * Realiza verificação com Gemini
+ * Função auxiliar para aguardar um tempo (delay)
+ */
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Detecta se o erro é rate limiting
+ */
+function isRateLimitError(error: any): boolean {
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  let errorString = "";
+  try {
+    errorString = JSON.stringify(error);
+  } catch (e) {
+    errorString = String(error);
+  }
+  
+  return (
+    errorMessage.includes("429") ||
+    errorMessage.includes("RATE_LIMIT_EXCEEDED") ||
+    errorMessage.includes("Quota exceeded") ||
+    errorMessage.includes("Too Many Requests") ||
+    errorString.includes("429") ||
+    errorString.includes("RATE_LIMIT_EXCEEDED") ||
+    errorString.includes("Quota exceeded")
+  );
+}
+
+/**
+ * Realiza verificação com Gemini com retry e fallback
  */
 async function checkWithGemini(
   text: string,
-  locale: string = "pt-BR"
+  locale: string = "pt-BR",
+  requestId?: number
 ): Promise<GeminiAnalysisResult> {
-  const logId = `checkWithGemini-${Date.now()}`;
+  const logId = requestId ? `checkWithGemini-${requestId}` : `checkWithGemini-${Date.now()}`;
   console.log(`[${logId}] === INICIANDO checkWithGemini ===`);
   console.log(`[${logId}] Locale:`, locale);
   console.log(`[${logId}] Tamanho do texto:`, text.length);
@@ -276,72 +307,90 @@ async function checkWithGemini(
     console.log(`[${logId}] Instância do Gemini AI criada com sucesso`);
     
     // Lista de modelos para tentar em ordem de preferência
-    const modelsToTry = ["gemini-2.5-pro", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
+    // Começamos com modelos mais leves que geralmente têm mais quota
+    const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.5-pro", "gemini-pro"];
     console.log(`[${logId}] Modelos para tentar:`, modelsToTry.join(", "));
     
     let lastError: Error | null = null;
+    let rateLimitCount = 0;
+    const maxRetries = 3; // Máximo de 3 tentativas com retry
+    const baseDelay = 2000; // 2 segundos base
     
     for (const modelName of modelsToTry) {
       console.log(`[${logId}] Tentando modelo: ${modelName}`);
-      try {
-        const model = genAI.getGenerativeModel({ 
-          model: modelName 
-        });
-        console.log(`[${logId}] Modelo ${modelName} instanciado com sucesso`);
-        
-        // Tenta gerar conteúdo com este modelo
-        const result = await generateContentWithModel(model, text, locale, logId);
-        console.log(`[${logId}] ✅ Sucesso com modelo ${modelName}`);
-        return result;
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        const errorString = JSON.stringify(error);
-        
-        console.error(`[${logId}] ❌ Erro ao usar modelo ${modelName}:`);
-        console.error(`[${logId}] Mensagem:`, errorMessage);
-        console.error(`[${logId}] Tipo:`, error instanceof Error ? error.constructor.name : typeof error);
-        
-        // Log completo do erro
-        if (error instanceof Error) {
-          console.error(`[${logId}] Stack:`, error.stack);
+      
+      // Tenta até maxRetries vezes com backoff exponencial
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+          const model = genAI.getGenerativeModel({ 
+            model: modelName 
+          });
+          console.log(`[${logId}] Modelo ${modelName} instanciado (tentativa ${attempt + 1}/${maxRetries})`);
+          
+          // Se não é a primeira tentativa, aguarda antes de tentar novamente
+          if (attempt > 0) {
+            const delayMs = baseDelay * Math.pow(2, attempt - 1); // Backoff exponencial: 2s, 4s, 8s
+            console.log(`[${logId}] Aguardando ${delayMs}ms antes de retry...`);
+            await delay(delayMs);
+          }
+          
+          // Tenta gerar conteúdo com este modelo
+          const result = await generateContentWithModel(model, text, locale, logId);
+          console.log(`[${logId}] ✅ Sucesso com modelo ${modelName} na tentativa ${attempt + 1}`);
+          return result;
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          const errorString = JSON.stringify(error);
+          
+          console.error(`[${logId}] ❌ Erro ao usar modelo ${modelName} (tentativa ${attempt + 1}):`);
+          console.error(`[${logId}] Mensagem:`, errorMessage);
+          
+          // Detecta erro de rate limiting
+          const isRateLimit = isRateLimitError(error);
+          
+          if (isRateLimit) {
+            rateLimitCount++;
+            console.warn(`[${logId}] ⚠️ RATE LIMIT detectado no modelo ${modelName} (tentativa ${attempt + 1})`);
+            
+            // Se ainda há tentativas restantes, tenta novamente com delay
+            if (attempt < maxRetries - 1) {
+              const delayMs = baseDelay * Math.pow(2, attempt); // Backoff exponencial
+              console.warn(`[${logId}] Aguardando ${delayMs}ms antes de retry (backoff exponencial)...`);
+              await delay(delayMs);
+              continue; // Tenta novamente com este modelo
+            } else {
+              // Se esgotou as tentativas para este modelo, tenta o próximo
+              console.warn(`[${logId}] Esgotadas tentativas para ${modelName}, tentando próximo modelo...`);
+              lastError = error instanceof Error ? error : new Error(String(error));
+              break; // Sai do loop de retry e tenta próximo modelo
+            }
+          }
+          
+          // Se for erro 404 (modelo não encontrado), tenta o próximo modelo
+          if (
+            errorMessage.includes("404") ||
+            errorMessage.includes("not found") ||
+            errorMessage.includes("not supported")
+          ) {
+            console.warn(`[${logId}] Modelo ${modelName} não encontrado (404) - tentando próximo`);
+            lastError = error instanceof Error ? error : new Error(String(error));
+            break; // Sai do loop de retry e tenta próximo modelo
+          }
+          
+          // Para outros erros, propaga imediatamente
+          console.error(`[${logId}] Erro não é 404 nem rate limit - propagando`);
+          throw error;
         }
-        
-        // Detecta erro de rate limiting (429) - propaga imediatamente
-        const isRateLimit = 
-          errorMessage.includes("429") ||
-          errorMessage.includes("RATE_LIMIT_EXCEEDED") ||
-          errorMessage.includes("Quota exceeded") ||
-          errorMessage.includes("Too Many Requests") ||
-          errorString.includes("429") ||
-          errorString.includes("RATE_LIMIT_EXCEEDED") ||
-          errorString.includes("Quota exceeded");
-        
-        if (isRateLimit) {
-          console.warn(`[${logId}] ⚠️ RATE LIMIT detectado no modelo ${modelName} - propagando erro`);
-          console.warn(`[${logId}] Erro completo:`, error);
-          throw error; // Propaga imediatamente, não tenta outros modelos
-        }
-        
-        lastError = error instanceof Error ? error : new Error(String(error));
-        
-        // Se for erro 404 (modelo não encontrado), tenta o próximo
-        if (
-          errorMessage.includes("404") ||
-          errorMessage.includes("not found") ||
-          errorMessage.includes("not supported")
-        ) {
-          console.warn(`[${logId}] Modelo ${modelName} não encontrado (404) - tentando próximo`);
-          continue; // Tenta próximo modelo
-        }
-        
-        // Se for outro tipo de erro, propaga
-        console.error(`[${logId}] Erro não é 404 nem rate limit - propagando`);
-        throw error;
       }
     }
     
     // Se todos os modelos falharam, lança o último erro
-    console.error(`[${logId}] ❌ Todos os modelos falharam`);
+    console.error(`[${logId}] ❌ Todos os modelos falharam após ${rateLimitCount} rate limits`);
+    
+    if (lastError && isRateLimitError(lastError)) {
+      throw new Error("RATE_LIMIT_EXCEEDED: A quota da API foi excedida para todos os modelos. Por favor, aguarde alguns minutos antes de tentar novamente.");
+    }
+    
     throw lastError || new Error("Nenhum modelo disponível");
   } catch (error) {
     console.error(`[${logId}] === ERRO FINAL EM checkWithGemini ===`);
@@ -518,9 +567,10 @@ async function generateContentWithModel(
  */
 export async function handleVerification(
   text: string,
-  locale: string = "pt-BR"
+  locale: string = "pt-BR",
+  requestId?: number
 ): Promise<VerificationResult> {
-  const logId = `handleVerification-${Date.now()}`;
+  const logId = requestId ? `handleVerification-${requestId}` : `handleVerification-${Date.now()}`;
   console.log(`[${logId}] === INICIANDO handleVerification ===`);
   console.log(`[${logId}] Locale:`, locale);
   console.log(`[${logId}] Tamanho do texto original:`, text.length);
@@ -539,7 +589,7 @@ export async function handleVerification(
       
       // 1. Analisa com Gemini
       console.log(`[${logId}] Passo 1: Analisando com Gemini...`);
-      let geminiResult = await checkWithGemini(sanitizedText, locale);
+      let geminiResult = await checkWithGemini(sanitizedText, locale, requestId);
       console.log(`[${logId}] Gemini análise concluída. Score:`, geminiResult.score);
 
       // 2. Complementa com busca Google
@@ -571,7 +621,7 @@ export async function handleVerification(
       console.log(`[${logId}] Fluxo: Padrão - usando apenas Gemini`);
       
       // Fluxo padrão Gemini
-      const geminiResult = await checkWithGemini(sanitizedText, locale);
+      const geminiResult = await checkWithGemini(sanitizedText, locale, requestId);
       console.log(`[${logId}] Gemini análise concluída. Score:`, geminiResult.score);
 
       verification = {
