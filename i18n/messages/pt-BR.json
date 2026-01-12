@@ -178,5 +178,69 @@
     "howItWorks": "Como Funciona",
     "tips": "Dicas",
     "about": "Sobre"
+  },
+  "terms": {
+    "title": "Termos de Uso",
+    "section1": {
+      "title": "1. Aceitação dos Termos",
+      "content": "Ao acessar e usar o Fake Lumos, você concorda em cumprir e estar vinculado a estes Termos de Uso. Se você não concordar com qualquer parte destes termos, não deve usar nosso serviço."
+    },
+    "section2": {
+      "title": "2. Descrição do Serviço",
+      "content": "O Fake Lumos é uma plataforma de verificação de notícias que utiliza inteligência artificial para analisar textos e identificar possíveis fake news. O serviço é fornecido \"como está\" e não garantimos a precisão absoluta dos resultados."
+    },
+    "section3": {
+      "title": "3. Uso do Serviço",
+      "content": "Você concorda em usar o Fake Lumos apenas para fins legais e de forma que não viole os direitos de terceiros. É proibido usar o serviço para atividades ilegais, enganosas ou que possam causar danos a terceiros."
+    },
+    "section4": {
+      "title": "4. Limitação de Responsabilidade",
+      "content": "O Fake Lumos não se responsabiliza por decisões tomadas com base nos resultados da análise. Os resultados são fornecidos apenas para fins informativos e não devem ser considerados como aconselhamento jurídico, médico ou profissional."
+    },
+    "section5": {
+      "title": "5. Propriedade Intelectual",
+      "content": "Todo o conteúdo do Fake Lumos, incluindo textos, gráficos, logotipos e software, é propriedade do Fake Lumos ou de seus licenciadores e está protegido por leis de direitos autorais e outras leis de propriedade intelectual."
+    },
+    "section6": {
+      "title": "6. Modificações dos Termos",
+      "content": "Reservamo-nos o direito de modificar estes Termos de Uso a qualquer momento. As alterações entrarão em vigor imediatamente após a publicação. É sua responsabilidade revisar periodicamente estes termos."
+    },
+    "section7": {
+      "title": "7. Contato",
+      "content": "Se você tiver dúvidas sobre estes Termos de Uso, entre em contato conosco através do email: luishg213@outlook.com"
+    },
+    "lastUpdated": "Última atualização: Janeiro de 2026"
+  },
+  "privacy": {
+    "title": "Política de Privacidade",
+    "section1": {
+      "title": "1. Informações Coletadas",
+      "content": "O Fake Lumos coleta apenas as informações necessárias para fornecer o serviço de verificação de notícias. Isso inclui os textos que você submete para análise, que são processados temporariamente e não são armazenados permanentemente."
+    },
+    "section2": {
+      "title": "2. Uso das Informações",
+      "content": "As informações coletadas são usadas exclusivamente para fornecer o serviço de verificação de notícias. Não compartilhamos, vendemos ou alugamos suas informações pessoais para terceiros."
+    },
+    "section3": {
+      "title": "3. Armazenamento de Dados",
+      "content": "Os textos submetidos para verificação são processados e podem ser armazenados temporariamente no histórico local do seu navegador (localStorage). Não armazenamos dados pessoais em nossos servidores."
+    },
+    "section4": {
+      "title": "4. Cookies e Tecnologias Similares",
+      "content": "Utilizamos cookies e tecnologias similares para melhorar sua experiência, incluindo preferências de acessibilidade e configurações de tema. Você pode gerenciar essas preferências através das configurações do seu navegador."
+    },
+    "section5": {
+      "title": "5. Segurança",
+      "content": "Implementamos medidas de segurança adequadas para proteger suas informações. No entanto, nenhum método de transmissão pela Internet é 100% seguro, e não podemos garantir segurança absoluta."
+    },
+    "section6": {
+      "title": "6. Seus Direitos",
+      "content": "Você tem o direito de acessar, corrigir ou excluir suas informações pessoais. Como não armazenamos dados pessoais em nossos servidores, você pode limpar o histórico local do seu navegador a qualquer momento."
+    },
+    "section7": {
+      "title": "7. Alterações nesta Política",
+      "content": "Podemos atualizar esta Política de Privacidade periodicamente. Recomendamos que você revise esta página regularmente para se manter informado sobre como protegemos suas informações."
+    },
+    "lastUpdated": "Última atualização: Janeiro de 2026"
   }
 }

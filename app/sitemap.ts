@@ -11,6 +11,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/how-it-works',
     '/tips',
     '/about',
+    '/terms',
+    '/privacy',
   ];
 
   const sitemapEntries: MetadataRoute.Sitemap = [];
