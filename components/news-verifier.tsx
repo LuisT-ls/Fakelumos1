@@ -4,13 +4,8 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { History } from "./history";
 import { Loader2 } from "lucide-react";
-
-export interface VerificationResult {
-  isFake: boolean;
-  confidence: number;
-  explanation: string;
-  reasons: string[];
-}
+import { VerificationResultDisplay } from "./verification-result";
+import type { VerificationResult } from "@/lib/gemini-analysis";
 
 export function NewsVerifier() {
   const t = useTranslations();
@@ -40,19 +35,20 @@ export function NewsVerifier() {
       });
 
       if (!response.ok) {
-        throw new Error(t("hero.errorVerify"));
+        const errorData = await response.json();
+        throw new Error(errorData.error || t("hero.errorVerify"));
       }
 
-      const verificationResult = await response.json();
+      const verificationResult: VerificationResult = await response.json();
       setResult(verificationResult);
 
       // Salvar no histórico
       const history = JSON.parse(localStorage.getItem("verificationHistory") || "[]");
       const newEntry = {
-        id: Date.now(),
-        content: content.substring(0, 100) + (content.length > 100 ? "..." : ""),
+        id: verificationResult.id,
+        content: verificationResult.text,
         result: verificationResult,
-        timestamp: new Date().toISOString(),
+        timestamp: verificationResult.timestamp,
       };
       history.unshift(newEntry);
       const limitedHistory = history.slice(0, 10);
@@ -104,29 +100,7 @@ export function NewsVerifier() {
             </div>
           )}
 
-          {result && (
-            <div className="mt-6 rounded-md border p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-semibold">
-                  {result.isFake ? t("history.fake") : t("history.true")}
-                </h3>
-                <span className="text-sm text-muted-foreground">
-                  {t("history.confidence")}: {result.confidence}%
-                </span>
-              </div>
-              <p className="mb-4 text-sm">{result.explanation}</p>
-              {result.reasons.length > 0 && (
-                <div>
-                  <h4 className="mb-2 font-medium">{t("hero.reasons")}</h4>
-                  <ul className="list-disc space-y-1 pl-6 text-sm">
-                    {result.reasons.map((reason, index) => (
-                      <li key={index}>{reason}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
+          {result && <VerificationResultDisplay result={result} />}
         </div>
 
         <History />
