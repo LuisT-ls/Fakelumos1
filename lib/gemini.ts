@@ -1,12 +1,12 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-
-if (!API_KEY) {
-  throw new Error("NEXT_PUBLIC_GEMINI_API_KEY não está definida");
+function getGenAI() {
+  const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+  if (!API_KEY) {
+    throw new Error("NEXT_PUBLIC_GEMINI_API_KEY não está definida");
+  }
+  return new GoogleGenerativeAI(API_KEY);
 }
-
-const genAI = new GoogleGenerativeAI(API_KEY);
 
 export interface VerificationResult {
   isFake: boolean;
@@ -16,6 +16,7 @@ export interface VerificationResult {
 }
 
 export async function verifyNews(content: string, locale: string = "pt-BR"): Promise<VerificationResult> {
+  const genAI = getGenAI();
   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
   const prompt = `Você é um especialista em verificação de fatos e detecção de fake news. Analise a seguinte notícia e determine se é falsa ou verdadeira.

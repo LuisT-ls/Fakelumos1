@@ -1,13 +1,13 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { searchGoogleCustom, type GoogleSearchResult } from "./google-search";
 
-const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-
-if (!API_KEY) {
-  throw new Error("NEXT_PUBLIC_GEMINI_API_KEY não está definida");
+function getGenAI() {
+  const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+  if (!API_KEY) {
+    throw new Error("NEXT_PUBLIC_GEMINI_API_KEY não está definida");
+  }
+  return new GoogleGenerativeAI(API_KEY);
 }
-
-const genAI = new GoogleGenerativeAI(API_KEY);
 
 export interface LimitacaoTemporal {
   afeta_analise: boolean;
@@ -266,6 +266,7 @@ async function checkWithGemini(
   text: string,
   locale: string = "pt-BR"
 ): Promise<GeminiAnalysisResult> {
+  const genAI = getGenAI();
   // Usa gemini-1.5-flash (mais rápido) ou gemini-pro como fallback
   const model = genAI.getGenerativeModel({ 
     model: "gemini-1.5-flash" 
