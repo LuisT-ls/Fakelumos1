@@ -59,7 +59,69 @@
   },
   "about": {
     "title": "Acerca de",
-    "description": "Fake Lumos es una herramienta educativa desarrollada para combatir la desinformación."
+    "mission": {
+      "title": "Nuestra Misión",
+      "description1": "Fake Lumos nació de la necesidad de combatir la creciente ola de desinformación en nuestra sociedad. Nuestra misión es empoderar a las personas con herramientas y conocimiento para identificar y combatir noticias falsas.",
+      "description2": "A través de la combinación de tecnología avanzada y educación digital, buscamos crear un entorno en línea más confiable y transparente."
+    },
+    "vision": {
+      "title": "Nuestra Visión",
+      "description1": "Aspiramos crear una sociedad más consciente y crítica en relación con la información que consume. Visualizamos un futuro donde cada ciudadano tenga las herramientas y el conocimiento necesarios para distinguir hechos de ficción.",
+      "description2": "Queremos ser referencia en la lucha contra la desinformación, contribuyendo a un debate público más saludable y basado en hechos."
+    },
+    "history": {
+      "title": "Historia del Proyecto",
+      "development": {
+        "title": "Inicio del Desarrollo",
+        "description": "El proyecto comenzó como trabajo final en la disciplina \"Algoritmo, Política y Sociedad\" en la UFBA, bajo la orientación del Prof. Dr. Paulo Fonseca."
+      },
+      "ai": {
+        "title": "Desarrollo de la IA",
+        "description": "Implementación de algoritmos de análisis de texto e integración con APIs de verificación de hechos para mejorar la precisión de las verificaciones."
+      },
+      "launch": {
+        "title": "Lanzamiento",
+        "description": "Disponibilización de la herramienta para el público, con enfoque en usabilidad y accesibilidad."
+      }
+    },
+    "team": {
+      "title": "Nuestro Equipo",
+      "luis": {
+        "name": "Luís Teixeira",
+        "role": "Desarrollador Full-Stack y Estudiante"
+      },
+      "paulo": {
+        "name": "Prof. Dr. Paulo Fonseca",
+        "role": "Asesor del Proyecto"
+      }
+    },
+    "technologies": {
+      "title": "Tecnologías Utilizadas",
+      "factChecking": {
+        "title": "Verificación de Hechos",
+        "description": "Verificación de hechos en tiempo real utilizando fuentes confiables"
+      },
+      "machineLearning": {
+        "title": "Machine Learning",
+        "description": "Algoritmos de aprendizaje automático para análisis de patrones"
+      },
+      "textAnalysis": {
+        "title": "Análisis de Texto",
+        "description": "Procesamiento y análisis de contenido textual para detección de desinformación"
+      },
+      "nlp": {
+        "title": "Procesamiento de Lenguaje Natural",
+        "description": "NLP para comprensión y análisis semántico de textos"
+      },
+      "apis": {
+        "title": "APIs de Verificación",
+        "description": "Integración con APIs de verificación de hechos y búsqueda en tiempo real"
+      },
+      "security": {
+        "title": "Seguridad de Datos",
+        "description": "Protección y privacidad de los datos de los usuarios"
+      }
+    }
   },
   "accessibility": {
     "title": "Accesibilidad",

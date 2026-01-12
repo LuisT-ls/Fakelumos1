@@ -59,7 +59,69 @@
   },
   "about": {
     "title": "About",
-    "description": "Fake Lumos is an educational tool developed to combat disinformation."
+    "mission": {
+      "title": "Our Mission",
+      "description1": "Fake Lumos was born from the need to combat the growing wave of disinformation in our society. Our mission is to empower people with tools and knowledge to identify and combat fake news.",
+      "description2": "Through the combination of advanced technology and digital education, we seek to create a more reliable and transparent online environment."
+    },
+    "vision": {
+      "title": "Our Vision",
+      "description1": "We aspire to create a more conscious and critical society regarding the information it consumes. We envision a future where every citizen has the tools and knowledge necessary to distinguish facts from fiction.",
+      "description2": "We want to be a reference in the fight against disinformation, contributing to a healthier and fact-based public debate."
+    },
+    "history": {
+      "title": "Project History",
+      "development": {
+        "title": "Development Start",
+        "description": "The project began as a final work in the discipline \"Algorithm, Politics and Society\" at UFBA, under the guidance of Prof. Dr. Paulo Fonseca."
+      },
+      "ai": {
+        "title": "AI Development",
+        "description": "Implementation of text analysis algorithms and integration with fact-checking APIs to improve verification accuracy."
+      },
+      "launch": {
+        "title": "Launch",
+        "description": "Making the tool available to the public, with a focus on usability and accessibility."
+      }
+    },
+    "team": {
+      "title": "Our Team",
+      "luis": {
+        "name": "Luís Teixeira",
+        "role": "Full-Stack Developer and Student"
+      },
+      "paulo": {
+        "name": "Prof. Dr. Paulo Fonseca",
+        "role": "Project Advisor"
+      }
+    },
+    "technologies": {
+      "title": "Technologies Used",
+      "factChecking": {
+        "title": "Fact-checking",
+        "description": "Real-time fact verification using reliable sources"
+      },
+      "machineLearning": {
+        "title": "Machine Learning",
+        "description": "Machine learning algorithms for pattern analysis"
+      },
+      "textAnalysis": {
+        "title": "Text Analysis",
+        "description": "Text processing and analysis for misinformation detection"
+      },
+      "nlp": {
+        "title": "Natural Language Processing",
+        "description": "NLP for semantic understanding and text analysis"
+      },
+      "apis": {
+        "title": "Verification APIs",
+        "description": "Integration with fact-checking APIs and real-time search"
+      },
+      "security": {
+        "title": "Data Security",
+        "description": "User data protection and privacy"
+      }
+    }
   },
   "accessibility": {
     "title": "Accessibility",
