@@ -1,0 +1,71 @@
+{
+  "nav": {
+    "howItWorks": "How It Works",
+    "tips": "Tips",
+    "about": "About"
+  },
+  "hero": {
+    "title": "Fake News Detector",
+    "subtitle": "Verify the veracity of news using artificial intelligence",
+    "inputPlaceholder": "Paste or type the news you want to verify...",
+    "verifyButton": "Verify Now",
+    "verifying": "Verifying...",
+    "errorEmpty": "Please enter a news item to verify.",
+    "errorVerify": "Error verifying news. Please try again.",
+    "reasons": "Reasons:"
+  },
+  "history": {
+    "title": "Verification History",
+    "empty": "No verifications performed yet",
+    "fake": "Fake",
+    "true": "True",
+    "confidence": "Confidence"
+  },
+  "tips": {
+    "title": "Tips to Identify Fake News",
+    "verifySource": {
+      "title": "Verify the Source",
+      "description": "Always verify the origin of the news. Reliable sources have a history of responsible journalism and are recognized for their credibility."
+    },
+    "analyzeDate": {
+      "title": "Analyze the Date",
+      "description": "Old news can be republished as if they were recent. Always check the original publication date."
+    },
+    "searchOtherSources": {
+      "title": "Search Other Sources",
+      "description": "If news is true, other reliable sources will also have published it. If only one unknown source has the information, be suspicious."
+    },
+    "identifyWarningSigns": {
+      "title": "Identify Warning Signs",
+      "description": "Sensationalist headlines, excessive spelling errors, use of capital letters, and urgent sharing requests are warning signs."
+    },
+    "verifyMedia": {
+      "title": "Verify Images and Videos",
+      "description": "Images and videos can be edited or taken out of context. Use reverse image verification tools to confirm the origin."
+    }
+  },
+  "footer": {
+    "aboutProject": "About the Project",
+    "aboutDescription": "This project was developed with the mission to combat disinformation and stimulate critical thinking. It is the result of the final work in the discipline 'Algorithm, Politics and Society', taught by Professor Dr. Paulo Fonseca at the Federal University of Bahia.",
+    "usefulLinks": "Useful Links",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfUse": "Terms of Use",
+    "contact": "Contact",
+    "copyright": "© 2026 Fake Lumos. All rights reserved."
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "description": "Our system uses Google Gemini artificial intelligence to analyze news and identify possible fake news."
+  },
+  "about": {
+    "title": "About",
+    "description": "Fake Lumos is an educational tool developed to combat disinformation."
+  },
+  "accessibility": {
+    "title": "Accessibility",
+    "increaseFont": "Increase Font",
+    "decreaseFont": "Decrease Font",
+    "highContrast": "High Contrast",
+    "normalContrast": "Normal Contrast"
+  }
+}

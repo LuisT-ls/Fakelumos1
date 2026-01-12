@@ -1,0 +1,71 @@
+{
+  "nav": {
+    "howItWorks": "Cómo Funciona",
+    "tips": "Consejos",
+    "about": "Acerca de"
+  },
+  "hero": {
+    "title": "Detector de Noticias Falsas",
+    "subtitle": "Verifica la veracidad de las noticias usando inteligencia artificial",
+    "inputPlaceholder": "Pega o escribe la noticia que deseas verificar...",
+    "verifyButton": "Verificar Ahora",
+    "verifying": "Verificando...",
+    "errorEmpty": "Por favor, ingresa una noticia para verificar.",
+    "errorVerify": "Error al verificar noticia. Intenta nuevamente.",
+    "reasons": "Razones:"
+  },
+  "history": {
+    "title": "Historial de Verificaciones",
+    "empty": "Aún no se han realizado verificaciones",
+    "fake": "Falsa",
+    "true": "Verdadera",
+    "confidence": "Confianza"
+  },
+  "tips": {
+    "title": "Consejos para Identificar Noticias Falsas",
+    "verifySource": {
+      "title": "Verifica la Fuente",
+      "description": "Siempre verifica el origen de la noticia. Las fuentes confiables tienen un historial de periodismo responsable y son reconocidas por su credibilidad."
+    },
+    "analyzeDate": {
+      "title": "Analiza la Fecha",
+      "description": "Las noticias antiguas pueden ser republicadas como si fueran recientes. Siempre verifica la fecha de publicación original."
+    },
+    "searchOtherSources": {
+      "title": "Busca en Otras Fuentes",
+      "description": "Si una noticia es verdadera, otras fuentes confiables también la habrán publicado. Si solo una fuente desconocida tiene la información, desconfía."
+    },
+    "identifyWarningSigns": {
+      "title": "Identifica Señales de Alerta",
+      "description": "Títulos sensacionalistas, errores ortográficos excesivos, uso de letras mayúsculas y solicitudes urgentes de compartir son señales de alerta."
+    },
+    "verifyMedia": {
+      "title": "Verifica Imágenes y Videos",
+      "description": "Las imágenes y videos pueden ser editados o sacados de contexto. Usa herramientas de verificación inversa de imágenes para confirmar el origen."
+    }
+  },
+  "footer": {
+    "aboutProject": "Acerca del Proyecto",
+    "aboutDescription": "Este proyecto fue desarrollado con la misión de combatir la desinformación y estimular el pensamiento crítico. Es el resultado del trabajo final en la disciplina 'Algoritmo, Política y Sociedad', impartida por el profesor Dr. Paulo Fonseca en la Universidad Federal de Bahía.",
+    "usefulLinks": "Enlaces Útiles",
+    "privacyPolicy": "Política de Privacidad",
+    "termsOfUse": "Términos de Uso",
+    "contact": "Contacto",
+    "copyright": "© 2026 Fake Lumos. Todos los derechos reservados."
+  },
+  "howItWorks": {
+    "title": "Cómo Funciona",
+    "description": "Nuestro sistema utiliza inteligencia artificial de Google Gemini para analizar noticias e identificar posibles noticias falsas."
+  },
+  "about": {
+    "title": "Acerca de",
+    "description": "Fake Lumos es una herramienta educativa desarrollada para combatir la desinformación."
+  },
+  "accessibility": {
+    "title": "Accesibilidad",
+    "increaseFont": "Aumentar Fuente",
+    "decreaseFont": "Disminuir Fuente",
+    "highContrast": "Alto Contraste",
+    "normalContrast": "Contraste Normal"
+  }
+}
