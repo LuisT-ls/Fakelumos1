@@ -1,3 +1,5 @@
+"use client";
+
 import { useTranslations } from "next-intl";
 import { CheckCircle2, Calendar, Search, AlertTriangle, Image } from "lucide-react";
 

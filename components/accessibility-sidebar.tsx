@@ -1,9 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { X, RotateCcw } from "lucide-react";
+import { X, RotateCcw, Keyboard } from "lucide-react";
 import { useAccessibility } from "./accessibility-provider";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 interface AccessibilitySidebarProps {
   isOpen: boolean;
@@ -16,6 +16,8 @@ export function AccessibilitySidebar({
 }: AccessibilitySidebarProps) {
   const t = useTranslations();
   const [mounted, setMounted] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
   const {
     contrastMode,
     setContrastMode,
@@ -38,13 +40,61 @@ export function AccessibilitySidebar({
     setMounted(true);
   }, []);
 
-  // Não bloquear scroll do body - permitir scroll unificado
+  // Interceptar scroll quando o mouse está sobre o menu
   useEffect(() => {
-    // Não bloqueia o scroll, permite scroll normal do site
-    return () => {
-      document.body.style.overflow = "";
+    if (!isOpen || !contentRef.current) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (!isHovered || !contentRef.current) return;
+
+      const content = contentRef.current;
+      const { scrollTop, scrollHeight, clientHeight } = content;
+      const isAtTop = scrollTop <= 1;
+      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+
+      // Se está no topo e tentando rolar para cima, ou no fundo e tentando rolar para baixo
+      // permite que o scroll passe para a página
+      if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+        return; // Permite scroll da página
+      }
+
+      // Caso contrário, rola apenas o conteúdo do menu com animação suave
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Scroll suave usando requestAnimationFrame
+      const targetScroll = content.scrollTop + e.deltaY;
+      const startScroll = content.scrollTop;
+      const distance = targetScroll - startScroll;
+      const duration = 200; // Duração da animação em ms
+      let startTime: number | null = null;
+
+      const animateScroll = (currentTime: number) => {
+        if (startTime === null) startTime = currentTime;
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function para scroll mais suave (ease-out cubic)
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        
+        content.scrollTop = startScroll + distance * easeOut;
+
+        if (progress < 1) {
+          requestAnimationFrame(animateScroll);
+        }
+      };
+
+      requestAnimationFrame(animateScroll);
     };
-  }, [isOpen]);
+
+    if (isHovered) {
+      window.addEventListener('wheel', handleWheel, { passive: false, capture: true });
+    }
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel, { capture: true });
+    };
+  }, [isOpen, isHovered]);
 
   if (!mounted || !isOpen) return null;
 
@@ -59,11 +109,14 @@ export function AccessibilitySidebar({
 
       {/* Sidebar */}
       <div
+        data-sidebar
         className="fixed right-0 top-0 z-[101] h-screen w-full max-w-md shadow-2xl ring-2 ring-primary/20 transition-transform sm:w-96"
         style={{
           backgroundColor: 'hsl(var(--card))',
           opacity: 1,
         }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         <div
           className="flex h-full flex-col"
@@ -94,9 +147,15 @@ export function AccessibilitySidebar({
             </button>
           </div>
 
-          {/* Content - sem scroll interno, usa scroll do body */}
-          <div className="flex-1 p-4">
-            <div className="space-y-6">
+          {/* Content - scroll unificado sem scrollbar visível */}
+          <div 
+            ref={contentRef}
+            className="flex-1 overflow-y-auto p-4 scrollbar-hide"
+            style={{
+              scrollBehavior: 'smooth',
+            }}
+          >
+            <div className="space-y-6 pb-4">
               {/* Contraste */}
               <div>
                 <label className="mb-3 block text-sm font-medium">
