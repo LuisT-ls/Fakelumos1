@@ -282,15 +282,31 @@ async function checkWithGemini(
       // Tenta gerar conteúdo com este modelo
       return await generateContentWithModel(model, text, locale);
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorString = JSON.stringify(error);
+      
+      // Detecta erro de rate limiting (429) - propaga imediatamente
+      if (
+        errorMessage.includes("429") ||
+        errorMessage.includes("RATE_LIMIT_EXCEEDED") ||
+        errorMessage.includes("Quota exceeded") ||
+        errorMessage.includes("Too Many Requests") ||
+        errorString.includes("429") ||
+        errorString.includes("RATE_LIMIT_EXCEEDED") ||
+        errorString.includes("Quota exceeded")
+      ) {
+        console.warn(`Rate limit detectado no modelo ${modelName}`);
+        throw error; // Propaga imediatamente, não tenta outros modelos
+      }
+      
       console.warn(`Erro ao usar modelo ${modelName}:`, error);
       lastError = error instanceof Error ? error : new Error(String(error));
       
       // Se for erro 404 (modelo não encontrado), tenta o próximo
       if (
-        error instanceof Error &&
-        (error.message.includes("404") ||
-         error.message.includes("not found") ||
-         error.message.includes("not supported"))
+        errorMessage.includes("404") ||
+        errorMessage.includes("not found") ||
+        errorMessage.includes("not supported")
       ) {
         continue; // Tenta próximo modelo
       }
@@ -349,50 +365,71 @@ async function generateContentWithModel(
       }
     }`;
 
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  const rawText = response.text().trim();
-
-  if (!rawText) {
-    console.error("Resposta vazia da API Gemini");
-    throw new Error("Resposta inválida da API");
-  }
-
-  const cleanText = rawText.replace(/```json|```/g, "").trim();
-  const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
-
-  if (!jsonMatch) {
-    console.error("JSON não encontrado. Texto recebido:", cleanText.substring(0, 200));
-    throw new Error("JSON não encontrado na resposta");
-  }
-
-  let parsed: GeminiAnalysisResult;
   try {
-    parsed = JSON.parse(jsonMatch[0]) as GeminiAnalysisResult;
-  } catch (parseError) {
-    console.error("Erro ao fazer parse do JSON:", parseError);
-    console.error("JSON recebido:", jsonMatch[0].substring(0, 500));
-    throw new Error("Erro ao processar a resposta da API");
-  }
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const rawText = response.text().trim();
 
-  return {
-    score: parsed.score ?? 0.5,
-    confiabilidade: parsed.confiabilidade ?? parsed.score ?? 0.5,
-    classificacao: parsed.classificacao ?? "Não Verificável",
-    explicacao_score: parsed.explicacao_score ?? "",
-    elementos_verdadeiros: parsed.elementos_verdadeiros ?? [],
-    elementos_falsos: parsed.elementos_falsos ?? [],
-    elementos_suspeitos: parsed.elementos_suspeitos ?? [],
-    fontes_confiaveis: parsed.fontes_confiaveis ?? [],
-    indicadores_desinformacao: parsed.indicadores_desinformacao ?? [],
-    analise_detalhada: parsed.analise_detalhada ?? "",
-    recomendacoes: parsed.recomendacoes ?? [],
-    limitacao_temporal: parsed.limitacao_temporal ?? {
-      afeta_analise: false,
-      elementos_nao_verificaveis: [],
-      sugestoes_verificacao: [],
-    },
-  };
+    if (!rawText) {
+      console.error("Resposta vazia da API Gemini");
+      throw new Error("Resposta inválida da API");
+    }
+
+    const cleanText = rawText.replace(/```json|```/g, "").trim();
+    const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
+
+    if (!jsonMatch) {
+      console.error("JSON não encontrado. Texto recebido:", cleanText.substring(0, 200));
+      throw new Error("JSON não encontrado na resposta");
+    }
+
+    let parsed: GeminiAnalysisResult;
+    try {
+      parsed = JSON.parse(jsonMatch[0]) as GeminiAnalysisResult;
+    } catch (parseError) {
+      console.error("Erro ao fazer parse do JSON:", parseError);
+      console.error("JSON recebido:", jsonMatch[0].substring(0, 500));
+      throw new Error("Erro ao processar a resposta da API");
+    }
+
+    return {
+      score: parsed.score ?? 0.5,
+      confiabilidade: parsed.confiabilidade ?? parsed.score ?? 0.5,
+      classificacao: parsed.classificacao ?? "Não Verificável",
+      explicacao_score: parsed.explicacao_score ?? "",
+      elementos_verdadeiros: parsed.elementos_verdadeiros ?? [],
+      elementos_falsos: parsed.elementos_falsos ?? [],
+      elementos_suspeitos: parsed.elementos_suspeitos ?? [],
+      fontes_confiaveis: parsed.fontes_confiaveis ?? [],
+      indicadores_desinformacao: parsed.indicadores_desinformacao ?? [],
+      analise_detalhada: parsed.analise_detalhada ?? "",
+      recomendacoes: parsed.recomendacoes ?? [],
+      limitacao_temporal: parsed.limitacao_temporal ?? {
+        afeta_analise: false,
+        elementos_nao_verificaveis: [],
+        sugestoes_verificacao: [],
+      },
+    };
+  } catch (error) {
+    // Detecta erros de rate limiting (429) da API do Gemini
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorString = JSON.stringify(error);
+    
+    if (
+      errorMessage.includes("429") ||
+      errorMessage.includes("RATE_LIMIT_EXCEEDED") ||
+      errorMessage.includes("Quota exceeded") ||
+      errorMessage.includes("Too Many Requests") ||
+      errorString.includes("429") ||
+      errorString.includes("RATE_LIMIT_EXCEEDED") ||
+      errorString.includes("Quota exceeded")
+    ) {
+      throw new Error("RATE_LIMIT_EXCEEDED: A quota da API foi excedida. Por favor, aguarde alguns minutos antes de tentar novamente.");
+    }
+    
+    // Propaga outros erros
+    throw error;
+  }
 }
 
 /**
