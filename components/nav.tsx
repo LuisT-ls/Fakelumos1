@@ -3,18 +3,17 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { useTheme } from "./theme-provider";
-import { useAccessibility } from "./accessibility-provider";
 import { Moon, Sun, Accessibility, Languages } from "lucide-react";
 import { useRouter, usePathname } from "@/i18n/routing";
 import { useState } from "react";
+import { AccessibilitySidebar } from "./accessibility-sidebar";
 
 export function Nav() {
   const t = useTranslations();
   const { theme, setTheme, resolvedTheme } = useTheme();
-  const { increaseFont, decreaseFont, toggleContrast, highContrast } = useAccessibility();
   const router = useRouter();
   const pathname = usePathname();
-  const [showAccessibilityMenu, setShowAccessibilityMenu] = useState(false);
+  const [showAccessibilitySidebar, setShowAccessibilitySidebar] = useState(false);
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
 
   const currentLocale = pathname.split("/")[1] || "pt-BR";
@@ -98,42 +97,21 @@ export function Nav() {
               )}
             </button>
 
-            <div className="relative">
-              <button
-                onClick={() => setShowAccessibilityMenu(!showAccessibilityMenu)}
-                className="rounded-md p-2 hover:bg-accent"
-                aria-label="Opções de acessibilidade"
-              >
-                <Accessibility className="h-5 w-5" />
-              </button>
-              {showAccessibilityMenu && (
-                <div className="absolute right-0 mt-2 w-48 rounded-md border bg-background shadow-lg">
-                  <button
-                    onClick={increaseFont}
-                    className="w-full px-4 py-2 text-left text-sm hover:bg-accent"
-                  >
-                    {t("accessibility.increaseFont")}
-                  </button>
-                  <button
-                    onClick={decreaseFont}
-                    className="w-full px-4 py-2 text-left text-sm hover:bg-accent"
-                  >
-                    {t("accessibility.decreaseFont")}
-                  </button>
-                  <button
-                    onClick={toggleContrast}
-                    className="w-full px-4 py-2 text-left text-sm hover:bg-accent"
-                  >
-                    {highContrast
-                      ? t("accessibility.normalContrast")
-                      : t("accessibility.highContrast")}
-                  </button>
-                </div>
-              )}
-            </div>
+            <button
+              onClick={() => setShowAccessibilitySidebar(true)}
+              className="rounded-md p-2 hover:bg-accent"
+              aria-label="Opções de acessibilidade"
+            >
+              <Accessibility className="h-5 w-5" />
+            </button>
           </div>
         </div>
       </div>
+
+      <AccessibilitySidebar
+        isOpen={showAccessibilitySidebar}
+        onClose={() => setShowAccessibilitySidebar(false)}
+      />
     </nav>
   );
 }

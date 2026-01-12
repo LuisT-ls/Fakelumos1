@@ -128,6 +128,43 @@
     "increaseFont": "Aumentar Fonte",
     "decreaseFont": "Diminuir Fonte",
     "highContrast": "Alto Contraste",
-    "normalContrast": "Contraste Normal"
+    "normalContrast": "Contraste Normal",
+    "contrast": {
+      "label": "Contraste",
+      "normal": "Normal",
+      "high": "Alto Contraste",
+      "blackYellow": "Preto/Amarelo",
+      "yellowBlack": "Amarelo/Preto"
+    },
+    "fontSize": {
+      "label": "Tamanho da Fonte"
+    },
+    "textSpacing": {
+      "label": "Espaçamento de Texto",
+      "normal": "Normal",
+      "medium": "Médio",
+      "large": "Ampliado"
+    },
+    "links": {
+      "label": "Destacar Links"
+    },
+    "dyslexia": {
+      "label": "Fonte para Dislexia"
+    },
+    "animations": {
+      "label": "Reduzir Animações"
+    },
+    "cursor": {
+      "label": "Cursor Ampliado"
+    },
+    "keyboardShortcuts": {
+      "title": "Atalhos de Teclado",
+      "contrast": "Alternar Contraste",
+      "dyslexia": "Alternar Fonte para Dislexia",
+      "increaseFont": "Aumentar Fonte",
+      "decreaseFont": "Diminuir Fonte",
+      "resetFont": "Resetar Fonte"
+    },
+    "reset": "Restaurar Configurações Padrão"
   }
 }

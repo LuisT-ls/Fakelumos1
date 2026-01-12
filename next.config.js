@@ -7,6 +7,10 @@ const nextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
   },
+  // Next.js 15 compatibility
+  experimental: {
+    // Adicionar configurações experimentais se necessário
+  },
 };
 
 module.exports = withNextIntl(nextConfig);

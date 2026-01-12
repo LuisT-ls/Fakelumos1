@@ -55,7 +55,10 @@ export function NewsVerifier() {
       localStorage.setItem("verificationHistory", JSON.stringify(limitedHistory));
       
       // Disparar evento customizado para atualizar o histórico
-      window.dispatchEvent(new Event("customStorageChange"));
+      if (typeof window !== "undefined") {
+        const event = new CustomEvent("customStorageChange");
+        window.dispatchEvent(event);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : t("hero.errorVerify"));
     } finally {

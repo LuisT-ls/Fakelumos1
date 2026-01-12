@@ -6,6 +6,8 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
     --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
@@ -23,6 +25,8 @@
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
     --secondary: 217.2 32.6% 17.5%;
@@ -50,6 +54,73 @@
     --primary: 0 0% 100%;
     --primary-foreground: 0 0% 0%;
     --border: 0 0% 100%;
+  }
+
+  .contrast-black-yellow {
+    --background: 0 0% 0%;
+    --foreground: 60 100% 50%;
+    --primary: 60 100% 50%;
+    --primary-foreground: 0 0% 0%;
+    --border: 60 100% 50%;
+  }
+
+  .contrast-yellow-black {
+    --background: 60 100% 50%;
+    --foreground: 0 0% 0%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 60 100% 50%;
+    --border: 0 0% 0%;
+  }
+
+  .spacing-normal {
+    --text-spacing: 0;
+  }
+
+  .spacing-medium {
+    --text-spacing: 0.1em;
+  }
+
+  .spacing-large {
+    --text-spacing: 0.2em;
+  }
+
+  .spacing-medium p,
+  .spacing-medium li,
+  .spacing-medium span {
+    letter-spacing: var(--text-spacing);
+    word-spacing: calc(var(--text-spacing) * 2);
+  }
+
+  .spacing-large p,
+  .spacing-large li,
+  .spacing-large span {
+    letter-spacing: var(--text-spacing);
+    word-spacing: calc(var(--text-spacing) * 2);
+  }
+
+  .highlight-links a {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    padding: 2px 4px;
+    text-decoration: underline;
+    font-weight: 600;
+  }
+
+  .dyslexia-font {
+    font-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', sans-serif;
+  }
+
+  .reduce-motion *,
+  .reduce-motion *::before,
+  .reduce-motion *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .enlarged-cursor * {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="black" opacity="0.5"/></svg>'), auto !important;
   }
 
   * {

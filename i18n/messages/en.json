@@ -128,6 +128,43 @@
     "increaseFont": "Increase Font",
     "decreaseFont": "Decrease Font",
     "highContrast": "High Contrast",
-    "normalContrast": "Normal Contrast"
+    "normalContrast": "Normal Contrast",
+    "contrast": {
+      "label": "Contrast",
+      "normal": "Normal",
+      "high": "High Contrast",
+      "blackYellow": "Black/Yellow",
+      "yellowBlack": "Yellow/Black"
+    },
+    "fontSize": {
+      "label": "Font Size"
+    },
+    "textSpacing": {
+      "label": "Text Spacing",
+      "normal": "Normal",
+      "medium": "Medium",
+      "large": "Enlarged"
+    },
+    "links": {
+      "label": "Highlight Links"
+    },
+    "dyslexia": {
+      "label": "Dyslexia Font"
+    },
+    "animations": {
+      "label": "Reduce Animations"
+    },
+    "cursor": {
+      "label": "Enlarged Cursor"
+    },
+    "keyboardShortcuts": {
+      "title": "Keyboard Shortcuts",
+      "contrast": "Toggle Contrast",
+      "dyslexia": "Toggle Dyslexia Font",
+      "increaseFont": "Increase Font",
+      "decreaseFont": "Decrease Font",
+      "resetFont": "Reset Font"
+    },
+    "reset": "Restore Default Settings"
   }
 }
