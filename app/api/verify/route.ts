@@ -23,6 +23,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verifica se a API key está configurada
+    if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+      console.error("NEXT_PUBLIC_GEMINI_API_KEY não está definida");
+      return NextResponse.json(
+        { error: "Configuração da API não encontrada. Por favor, entre em contato com o suporte." },
+        { status: 500 }
+      );
+    }
+
     const result = await handleVerification(
       validation.sanitizedText,
       locale || "pt-BR"
@@ -31,12 +40,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result);
   } catch (error) {
     console.error("Erro na API:", error);
+    
+    // Log detalhado do erro para debug
+    if (error instanceof Error) {
+      console.error("Mensagem de erro:", error.message);
+      console.error("Stack trace:", error.stack);
+    }
+
     return NextResponse.json(
       {
         error:
           error instanceof Error
             ? error.message
-            : "Erro ao processar a verificação",
+            : "Erro ao processar a verificação. Tente novamente mais tarde.",
       },
       { status: 500 }
     );

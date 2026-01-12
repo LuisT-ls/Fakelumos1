@@ -267,9 +267,10 @@ async function checkWithGemini(
   locale: string = "pt-BR"
 ): Promise<GeminiAnalysisResult> {
   const genAI = getGenAI();
-  // Usa gemini-1.5-flash (mais rápido) ou gemini-pro como fallback
+  
+  // Usa gemini-pro que é mais estável e amplamente disponível
   const model = genAI.getGenerativeModel({ 
-    model: "gemini-1.5-flash" 
+    model: "gemini-pro" 
   });
 
   const currentDate = new Date();
@@ -314,6 +315,7 @@ async function checkWithGemini(
     const rawText = response.text().trim();
 
     if (!rawText) {
+      console.error("Resposta vazia da API Gemini");
       throw new Error("Resposta inválida da API");
     }
 
@@ -321,10 +323,18 @@ async function checkWithGemini(
     const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
 
     if (!jsonMatch) {
+      console.error("JSON não encontrado. Texto recebido:", cleanText.substring(0, 200));
       throw new Error("JSON não encontrado na resposta");
     }
 
-    const parsed = JSON.parse(jsonMatch[0]) as GeminiAnalysisResult;
+    let parsed: GeminiAnalysisResult;
+    try {
+      parsed = JSON.parse(jsonMatch[0]) as GeminiAnalysisResult;
+    } catch (parseError) {
+      console.error("Erro ao fazer parse do JSON:", parseError);
+      console.error("JSON recebido:", jsonMatch[0].substring(0, 500));
+      throw new Error("Erro ao processar a resposta da API");
+    }
 
     return {
       score: parsed.score ?? 0.5,
@@ -346,6 +356,18 @@ async function checkWithGemini(
     };
   } catch (error) {
     console.error("Erro na análise Gemini:", error);
+    
+    // Log mais detalhado para debug
+    if (error instanceof Error) {
+      console.error("Mensagem:", error.message);
+      console.error("Stack:", error.stack);
+    }
+    
+    // Se for um erro específico da API, propaga com mensagem mais clara
+    if (error instanceof Error && error.message.includes("API")) {
+      throw error;
+    }
+    
     throw new Error("Erro ao processar a verificação. Tente novamente.");
   }
 }
