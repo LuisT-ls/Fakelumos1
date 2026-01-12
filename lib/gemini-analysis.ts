@@ -268,10 +268,50 @@ async function checkWithGemini(
 ): Promise<GeminiAnalysisResult> {
   const genAI = getGenAI();
   
-  // Usa gemini-pro que é mais estável e amplamente disponível
-  const model = genAI.getGenerativeModel({ 
-    model: "gemini-pro" 
-  });
+  // Lista de modelos para tentar em ordem de preferência
+  const modelsToTry = ["gemini-2.5-pro", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
+  
+  let lastError: Error | null = null;
+  
+  for (const modelName of modelsToTry) {
+    try {
+      const model = genAI.getGenerativeModel({ 
+        model: modelName 
+      });
+      
+      // Tenta gerar conteúdo com este modelo
+      return await generateContentWithModel(model, text, locale);
+    } catch (error) {
+      console.warn(`Erro ao usar modelo ${modelName}:`, error);
+      lastError = error instanceof Error ? error : new Error(String(error));
+      
+      // Se for erro 404 (modelo não encontrado), tenta o próximo
+      if (
+        error instanceof Error &&
+        (error.message.includes("404") ||
+         error.message.includes("not found") ||
+         error.message.includes("not supported"))
+      ) {
+        continue; // Tenta próximo modelo
+      }
+      
+      // Se for outro tipo de erro, propaga
+      throw error;
+    }
+  }
+  
+  // Se todos os modelos falharam, lança o último erro
+  throw lastError || new Error("Nenhum modelo disponível");
+}
+
+/**
+ * Função auxiliar para gerar conteúdo com um modelo específico
+ */
+async function generateContentWithModel(
+  model: any,
+  text: string,
+  locale: string
+): Promise<GeminiAnalysisResult> {
 
   const currentDate = new Date();
   const promptLang =
@@ -309,79 +349,50 @@ async function checkWithGemini(
       }
     }`;
 
-  try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const rawText = response.text().trim();
+  const result = await model.generateContent(prompt);
+  const response = await result.response;
+  const rawText = response.text().trim();
 
-    if (!rawText) {
-      console.error("Resposta vazia da API Gemini");
-      throw new Error("Resposta inválida da API");
-    }
-
-    const cleanText = rawText.replace(/```json|```/g, "").trim();
-    const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
-
-    if (!jsonMatch) {
-      console.error("JSON não encontrado. Texto recebido:", cleanText.substring(0, 200));
-      throw new Error("JSON não encontrado na resposta");
-    }
-
-    let parsed: GeminiAnalysisResult;
-    try {
-      parsed = JSON.parse(jsonMatch[0]) as GeminiAnalysisResult;
-    } catch (parseError) {
-      console.error("Erro ao fazer parse do JSON:", parseError);
-      console.error("JSON recebido:", jsonMatch[0].substring(0, 500));
-      throw new Error("Erro ao processar a resposta da API");
-    }
-
-    return {
-      score: parsed.score ?? 0.5,
-      confiabilidade: parsed.confiabilidade ?? parsed.score ?? 0.5,
-      classificacao: parsed.classificacao ?? "Não Verificável",
-      explicacao_score: parsed.explicacao_score ?? "",
-      elementos_verdadeiros: parsed.elementos_verdadeiros ?? [],
-      elementos_falsos: parsed.elementos_falsos ?? [],
-      elementos_suspeitos: parsed.elementos_suspeitos ?? [],
-      fontes_confiaveis: parsed.fontes_confiaveis ?? [],
-      indicadores_desinformacao: parsed.indicadores_desinformacao ?? [],
-      analise_detalhada: parsed.analise_detalhada ?? "",
-      recomendacoes: parsed.recomendacoes ?? [],
-      limitacao_temporal: parsed.limitacao_temporal ?? {
-        afeta_analise: false,
-        elementos_nao_verificaveis: [],
-        sugestoes_verificacao: [],
-      },
-    };
-  } catch (error) {
-    console.error("Erro na análise Gemini:", error);
-    
-    // Log mais detalhado para debug
-    if (error instanceof Error) {
-      console.error("Mensagem:", error.message);
-      console.error("Stack:", error.stack);
-      
-      // Detecta erro de rate limiting (429)
-      if (
-        error.message.includes("429") ||
-        error.message.includes("RATE_LIMIT_EXCEEDED") ||
-        error.message.includes("Quota exceeded") ||
-        error.message.includes("Too Many Requests")
-      ) {
-        throw new Error(
-          "RATE_LIMIT_EXCEEDED: A quota da API foi excedida. Por favor, aguarde alguns minutos antes de tentar novamente."
-        );
-      }
-    }
-    
-    // Se for um erro específico da API, propaga com mensagem mais clara
-    if (error instanceof Error && error.message.includes("API")) {
-      throw error;
-    }
-    
-    throw new Error("Erro ao processar a verificação. Tente novamente.");
+  if (!rawText) {
+    console.error("Resposta vazia da API Gemini");
+    throw new Error("Resposta inválida da API");
   }
+
+  const cleanText = rawText.replace(/```json|```/g, "").trim();
+  const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
+
+  if (!jsonMatch) {
+    console.error("JSON não encontrado. Texto recebido:", cleanText.substring(0, 200));
+    throw new Error("JSON não encontrado na resposta");
+  }
+
+  let parsed: GeminiAnalysisResult;
+  try {
+    parsed = JSON.parse(jsonMatch[0]) as GeminiAnalysisResult;
+  } catch (parseError) {
+    console.error("Erro ao fazer parse do JSON:", parseError);
+    console.error("JSON recebido:", jsonMatch[0].substring(0, 500));
+    throw new Error("Erro ao processar a resposta da API");
+  }
+
+  return {
+    score: parsed.score ?? 0.5,
+    confiabilidade: parsed.confiabilidade ?? parsed.score ?? 0.5,
+    classificacao: parsed.classificacao ?? "Não Verificável",
+    explicacao_score: parsed.explicacao_score ?? "",
+    elementos_verdadeiros: parsed.elementos_verdadeiros ?? [],
+    elementos_falsos: parsed.elementos_falsos ?? [],
+    elementos_suspeitos: parsed.elementos_suspeitos ?? [],
+    fontes_confiaveis: parsed.fontes_confiaveis ?? [],
+    indicadores_desinformacao: parsed.indicadores_desinformacao ?? [],
+    analise_detalhada: parsed.analise_detalhada ?? "",
+    recomendacoes: parsed.recomendacoes ?? [],
+    limitacao_temporal: parsed.limitacao_temporal ?? {
+      afeta_analise: false,
+      elementos_nao_verificaveis: [],
+      sugestoes_verificacao: [],
+    },
+  };
 }
 
 /**
