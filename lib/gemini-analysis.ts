@@ -361,6 +361,18 @@ async function checkWithGemini(
     if (error instanceof Error) {
       console.error("Mensagem:", error.message);
       console.error("Stack:", error.stack);
+      
+      // Detecta erro de rate limiting (429)
+      if (
+        error.message.includes("429") ||
+        error.message.includes("RATE_LIMIT_EXCEEDED") ||
+        error.message.includes("Quota exceeded") ||
+        error.message.includes("Too Many Requests")
+      ) {
+        throw new Error(
+          "RATE_LIMIT_EXCEEDED: A quota da API foi excedida. Por favor, aguarde alguns minutos antes de tentar novamente."
+        );
+      }
     }
     
     // Se for um erro específico da API, propaga com mensagem mais clara

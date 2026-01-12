@@ -36,6 +36,12 @@ export function NewsVerifier() {
 
       if (!response.ok) {
         const errorData = await response.json();
+        
+        // Tratamento específico para rate limiting (429)
+        if (response.status === 429 || errorData.errorCode === "RATE_LIMIT_EXCEEDED") {
+          throw new Error(t("hero.errorRateLimit"));
+        }
+        
         throw new Error(errorData.error || t("hero.errorVerify"));
       }
 

@@ -3,9 +3,12 @@ import { handleVerification } from "@/lib/gemini-analysis";
 import { validateUserInput } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
+  let locale = "pt-BR";
+  
   try {
     const body = await request.json();
-    const { content, locale } = body;
+    const { content, locale: bodyLocale } = body;
+    locale = bodyLocale || "pt-BR";
 
     if (!content || typeof content !== "string") {
       return NextResponse.json(
@@ -34,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     const result = await handleVerification(
       validation.sanitizedText,
-      locale || "pt-BR"
+      locale
     );
 
     return NextResponse.json(result);
@@ -45,6 +48,27 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error) {
       console.error("Mensagem de erro:", error.message);
       console.error("Stack trace:", error.stack);
+      
+      // Tratamento específico para rate limiting
+      if (
+        error.message.includes("RATE_LIMIT_EXCEEDED") ||
+        error.message.includes("429") ||
+        error.message.includes("Quota exceeded") ||
+        error.message.includes("Too Many Requests")
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              locale === "pt-BR"
+                ? "A quota da API foi excedida. Por favor, aguarde alguns minutos antes de tentar novamente. Se o problema persistir, entre em contato com o suporte."
+                : locale === "es"
+                ? "Se ha excedido la cuota de la API. Por favor, espere unos minutos antes de intentar nuevamente. Si el problema persiste, contacte al soporte."
+                : "API quota exceeded. Please wait a few minutes before trying again. If the problem persists, please contact support.",
+            errorCode: "RATE_LIMIT_EXCEEDED",
+          },
+          { status: 429 }
+        );
+      }
     }
 
     return NextResponse.json(
