@@ -266,58 +266,88 @@ async function checkWithGemini(
   text: string,
   locale: string = "pt-BR"
 ): Promise<GeminiAnalysisResult> {
-  const genAI = getGenAI();
+  const logId = `checkWithGemini-${Date.now()}`;
+  console.log(`[${logId}] === INICIANDO checkWithGemini ===`);
+  console.log(`[${logId}] Locale:`, locale);
+  console.log(`[${logId}] Tamanho do texto:`, text.length);
   
-  // Lista de modelos para tentar em ordem de preferência
-  const modelsToTry = ["gemini-2.5-pro", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
-  
-  let lastError: Error | null = null;
-  
-  for (const modelName of modelsToTry) {
-    try {
-      const model = genAI.getGenerativeModel({ 
-        model: modelName 
-      });
-      
-      // Tenta gerar conteúdo com este modelo
-      return await generateContentWithModel(model, text, locale);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      const errorString = JSON.stringify(error);
-      
-      // Detecta erro de rate limiting (429) - propaga imediatamente
-      if (
-        errorMessage.includes("429") ||
-        errorMessage.includes("RATE_LIMIT_EXCEEDED") ||
-        errorMessage.includes("Quota exceeded") ||
-        errorMessage.includes("Too Many Requests") ||
-        errorString.includes("429") ||
-        errorString.includes("RATE_LIMIT_EXCEEDED") ||
-        errorString.includes("Quota exceeded")
-      ) {
-        console.warn(`Rate limit detectado no modelo ${modelName}`);
-        throw error; // Propaga imediatamente, não tenta outros modelos
+  try {
+    const genAI = getGenAI();
+    console.log(`[${logId}] Instância do Gemini AI criada com sucesso`);
+    
+    // Lista de modelos para tentar em ordem de preferência
+    const modelsToTry = ["gemini-2.5-pro", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
+    console.log(`[${logId}] Modelos para tentar:`, modelsToTry.join(", "));
+    
+    let lastError: Error | null = null;
+    
+    for (const modelName of modelsToTry) {
+      console.log(`[${logId}] Tentando modelo: ${modelName}`);
+      try {
+        const model = genAI.getGenerativeModel({ 
+          model: modelName 
+        });
+        console.log(`[${logId}] Modelo ${modelName} instanciado com sucesso`);
+        
+        // Tenta gerar conteúdo com este modelo
+        const result = await generateContentWithModel(model, text, locale, logId);
+        console.log(`[${logId}] ✅ Sucesso com modelo ${modelName}`);
+        return result;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorString = JSON.stringify(error);
+        
+        console.error(`[${logId}] ❌ Erro ao usar modelo ${modelName}:`);
+        console.error(`[${logId}] Mensagem:`, errorMessage);
+        console.error(`[${logId}] Tipo:`, error instanceof Error ? error.constructor.name : typeof error);
+        
+        // Log completo do erro
+        if (error instanceof Error) {
+          console.error(`[${logId}] Stack:`, error.stack);
+        }
+        
+        // Detecta erro de rate limiting (429) - propaga imediatamente
+        const isRateLimit = 
+          errorMessage.includes("429") ||
+          errorMessage.includes("RATE_LIMIT_EXCEEDED") ||
+          errorMessage.includes("Quota exceeded") ||
+          errorMessage.includes("Too Many Requests") ||
+          errorString.includes("429") ||
+          errorString.includes("RATE_LIMIT_EXCEEDED") ||
+          errorString.includes("Quota exceeded");
+        
+        if (isRateLimit) {
+          console.warn(`[${logId}] ⚠️ RATE LIMIT detectado no modelo ${modelName} - propagando erro`);
+          console.warn(`[${logId}] Erro completo:`, error);
+          throw error; // Propaga imediatamente, não tenta outros modelos
+        }
+        
+        lastError = error instanceof Error ? error : new Error(String(error));
+        
+        // Se for erro 404 (modelo não encontrado), tenta o próximo
+        if (
+          errorMessage.includes("404") ||
+          errorMessage.includes("not found") ||
+          errorMessage.includes("not supported")
+        ) {
+          console.warn(`[${logId}] Modelo ${modelName} não encontrado (404) - tentando próximo`);
+          continue; // Tenta próximo modelo
+        }
+        
+        // Se for outro tipo de erro, propaga
+        console.error(`[${logId}] Erro não é 404 nem rate limit - propagando`);
+        throw error;
       }
-      
-      console.warn(`Erro ao usar modelo ${modelName}:`, error);
-      lastError = error instanceof Error ? error : new Error(String(error));
-      
-      // Se for erro 404 (modelo não encontrado), tenta o próximo
-      if (
-        errorMessage.includes("404") ||
-        errorMessage.includes("not found") ||
-        errorMessage.includes("not supported")
-      ) {
-        continue; // Tenta próximo modelo
-      }
-      
-      // Se for outro tipo de erro, propaga
-      throw error;
     }
+    
+    // Se todos os modelos falharam, lança o último erro
+    console.error(`[${logId}] ❌ Todos os modelos falharam`);
+    throw lastError || new Error("Nenhum modelo disponível");
+  } catch (error) {
+    console.error(`[${logId}] === ERRO FINAL EM checkWithGemini ===`);
+    console.error(`[${logId}] Erro:`, error);
+    throw error;
   }
-  
-  // Se todos os modelos falharam, lança o último erro
-  throw lastError || new Error("Nenhum modelo disponível");
 }
 
 /**
@@ -326,8 +356,11 @@ async function checkWithGemini(
 async function generateContentWithModel(
   model: any,
   text: string,
-  locale: string
+  locale: string,
+  logId?: string
 ): Promise<GeminiAnalysisResult> {
+  const localLogId = logId || `generateContent-${Date.now()}`;
+  console.log(`[${localLogId}] === INICIANDO generateContentWithModel ===`);
 
   const currentDate = new Date();
   const promptLang =
@@ -366,9 +399,18 @@ async function generateContentWithModel(
     }`;
 
   try {
+    console.log(`[${localLogId}] Enviando requisição para o modelo...`);
+    console.log(`[${localLogId}] Tamanho do prompt:`, prompt.length);
+    
+    const startTime = Date.now();
     const result = await model.generateContent(prompt);
     const response = await result.response;
+    const elapsedTime = Date.now() - startTime;
+    
+    console.log(`[${localLogId}] Resposta recebida em ${elapsedTime}ms`);
+    
     const rawText = response.text().trim();
+    console.log(`[${localLogId}] Tamanho da resposta:`, rawText.length);
 
     if (!rawText) {
       console.error("Resposta vazia da API Gemini");
@@ -411,22 +453,61 @@ async function generateContentWithModel(
       },
     };
   } catch (error) {
+    console.error(`[${localLogId}] === ERRO EM generateContentWithModel ===`);
+    console.error(`[${localLogId}] Tipo do erro:`, error instanceof Error ? error.constructor.name : typeof error);
+    
     // Detecta erros de rate limiting (429) da API do Gemini
     const errorMessage = error instanceof Error ? error.message : String(error);
-    const errorString = JSON.stringify(error);
+    let errorString = "";
     
-    if (
+    try {
+      errorString = JSON.stringify(error);
+    } catch (e) {
+      errorString = String(error);
+    }
+    
+    console.error(`[${localLogId}] Mensagem de erro:`, errorMessage);
+    console.error(`[${localLogId}] Erro serializado:`, errorString);
+    
+    if (error instanceof Error) {
+      console.error(`[${localLogId}] Stack trace:`, error.stack);
+      console.error(`[${localLogId}] Nome do erro:`, error.name);
+    }
+    
+    // Log completo do objeto de erro se possível
+    if (error && typeof error === 'object') {
+      try {
+        const errorObj = error as any;
+        console.error(`[${localLogId}] Propriedades do erro:`, Object.keys(errorObj));
+        if (errorObj.cause) {
+          console.error(`[${localLogId}] Causa do erro:`, errorObj.cause);
+        }
+        if (errorObj.response) {
+          console.error(`[${localLogId}] Resposta HTTP:`, errorObj.response);
+        }
+        if (errorObj.status) {
+          console.error(`[${localLogId}] Status HTTP:`, errorObj.status);
+        }
+      } catch (e) {
+        console.error(`[${localLogId}] Erro ao inspecionar objeto de erro:`, e);
+      }
+    }
+    
+    const isRateLimit = 
       errorMessage.includes("429") ||
       errorMessage.includes("RATE_LIMIT_EXCEEDED") ||
       errorMessage.includes("Quota exceeded") ||
       errorMessage.includes("Too Many Requests") ||
       errorString.includes("429") ||
       errorString.includes("RATE_LIMIT_EXCEEDED") ||
-      errorString.includes("Quota exceeded")
-    ) {
+      errorString.includes("Quota exceeded");
+    
+    if (isRateLimit) {
+      console.warn(`[${localLogId}] ⚠️ RATE LIMIT detectado - propagando erro`);
       throw new Error("RATE_LIMIT_EXCEEDED: A quota da API foi excedida. Por favor, aguarde alguns minutos antes de tentar novamente.");
     }
     
+    console.error(`[${localLogId}] Erro não é rate limit - propagando erro original`);
     // Propaga outros erros
     throw error;
   }
@@ -439,49 +520,80 @@ export async function handleVerification(
   text: string,
   locale: string = "pt-BR"
 ): Promise<VerificationResult> {
+  const logId = `handleVerification-${Date.now()}`;
+  console.log(`[${logId}] === INICIANDO handleVerification ===`);
+  console.log(`[${logId}] Locale:`, locale);
+  console.log(`[${logId}] Tamanho do texto original:`, text.length);
+  
   const sanitizedText = text.trim();
+  console.log(`[${logId}] Texto sanitizado (primeiros 100 chars):`, sanitizedText.substring(0, 100));
 
   let verification: VerificationResult;
 
-  if (isPerguntaPos2022(sanitizedText)) {
-    // 1. Analisa com Gemini
-    let geminiResult = await checkWithGemini(sanitizedText, locale);
+  const isPost2022 = isPerguntaPos2022(sanitizedText);
+  console.log(`[${logId}] É pergunta pós-2022:`, isPost2022);
 
-    // 2. Complementa com busca Google
-    const googleResults = await searchGoogleCustom(sanitizedText);
+  try {
+    if (isPost2022) {
+      console.log(`[${logId}] Fluxo: Pergunta pós-2022 - usando Gemini + Google Search`);
+      
+      // 1. Analisa com Gemini
+      console.log(`[${logId}] Passo 1: Analisando com Gemini...`);
+      let geminiResult = await checkWithGemini(sanitizedText, locale);
+      console.log(`[${logId}] Gemini análise concluída. Score:`, geminiResult.score);
 
-    // 3. Ajusta Gemini se fontes confirmarem
-    geminiResult = ajustarGeminiComFontes(
-      geminiResult,
-      googleResults,
-      sanitizedText
-    );
+      // 2. Complementa com busca Google
+      console.log(`[${logId}] Passo 2: Buscando no Google...`);
+      const googleResults = await searchGoogleCustom(sanitizedText);
+      console.log(`[${logId}] Google Search retornou ${googleResults.length} resultados`);
 
-    verification = {
-      id: Date.now(),
-      timestamp: new Date().toISOString(),
-      text:
-        sanitizedText.substring(0, 200) +
-        (sanitizedText.length > 200 ? "..." : ""),
-      geminiAnalysis: geminiResult,
-      overallScore: geminiResult.score,
-      realtimeSource: "Google Custom Search",
-      realtimeData: googleResults,
-    };
-  } else {
-    // Fluxo padrão Gemini
-    const geminiResult = await checkWithGemini(sanitizedText, locale);
+      // 3. Ajusta Gemini se fontes confirmarem
+      console.log(`[${logId}] Passo 3: Ajustando resultado com fontes do Google...`);
+      geminiResult = ajustarGeminiComFontes(
+        geminiResult,
+        googleResults,
+        sanitizedText
+      );
+      console.log(`[${logId}] Resultado ajustado. Score final:`, geminiResult.score);
 
-    verification = {
-      id: Date.now(),
-      timestamp: new Date().toISOString(),
-      text:
-        sanitizedText.substring(0, 200) +
-        (sanitizedText.length > 200 ? "..." : ""),
-      geminiAnalysis: geminiResult,
-      overallScore: geminiResult.score,
-    };
+      verification = {
+        id: Date.now(),
+        timestamp: new Date().toISOString(),
+        text:
+          sanitizedText.substring(0, 200) +
+          (sanitizedText.length > 200 ? "..." : ""),
+        geminiAnalysis: geminiResult,
+        overallScore: geminiResult.score,
+        realtimeSource: "Google Custom Search",
+        realtimeData: googleResults,
+      };
+    } else {
+      console.log(`[${logId}] Fluxo: Padrão - usando apenas Gemini`);
+      
+      // Fluxo padrão Gemini
+      const geminiResult = await checkWithGemini(sanitizedText, locale);
+      console.log(`[${logId}] Gemini análise concluída. Score:`, geminiResult.score);
+
+      verification = {
+        id: Date.now(),
+        timestamp: new Date().toISOString(),
+        text:
+          sanitizedText.substring(0, 200) +
+          (sanitizedText.length > 200 ? "..." : ""),
+        geminiAnalysis: geminiResult,
+        overallScore: geminiResult.score,
+      };
+    }
+
+    console.log(`[${logId}] ✅ Verificação concluída com sucesso`);
+    console.log(`[${logId}] ID da verificação:`, verification.id);
+    console.log(`[${logId}] Score final:`, verification.overallScore);
+    console.log(`[${logId}] Classificação:`, verification.geminiAnalysis.classificacao);
+
+    return verification;
+  } catch (error) {
+    console.error(`[${logId}] === ERRO EM handleVerification ===`);
+    console.error(`[${logId}] Erro:`, error);
+    throw error;
   }
-
-  return verification;
 }
