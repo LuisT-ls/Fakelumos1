@@ -70,7 +70,7 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  const messages = await getMessages({ locale });
+  const messages = await getMessages();
   const baseUrl = "https://fakelumos.vercel.app";
 
   const organizationSchema = {
