@@ -7,7 +7,6 @@ import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Metadata } from "next";
-import { StructuredData } from "@/components/structured-data";
 
 export async function generateMetadata({
   params,
@@ -72,19 +71,89 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages({ locale });
+  const baseUrl = "https://fakelumos.vercel.app";
+
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Fake Lumos",
+    url: baseUrl,
+    logo: `${baseUrl}/images/favicon/android-chrome-512x512.png`,
+    description:
+      locale === "pt-BR"
+        ? "Detector de fake news usando inteligência artificial do Google Gemini"
+        : locale === "en"
+        ? "Fake news detector using Google Gemini artificial intelligence"
+        : "Detector de noticias falsas usando inteligencia artificial de Google Gemini",
+    sameAs: [baseUrl],
+  };
+
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Fake Lumos",
+    url: baseUrl,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${baseUrl}/{search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+    inLanguage: locale === "pt-BR" ? "pt-BR" : locale === "en" ? "en" : "es",
+  };
+
+  const softwareApplicationSchema = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Fake Lumos",
+    applicationCategory: "WebApplication",
+    operatingSystem: "Web",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "BRL",
+    },
+    description:
+      locale === "pt-BR"
+        ? "Ferramenta gratuita para verificação de notícias usando IA"
+        : locale === "en"
+        ? "Free tool for news verification using AI"
+        : "Herramienta gratuita para verificación de noticias usando IA",
+  };
 
   return (
-    <NextIntlClientProvider messages={messages}>
-      <StructuredData locale={locale} />
-      <ThemeProvider>
-        <AccessibilityProvider>
-          <div className="flex min-h-screen flex-col">
-            <Nav />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-        </AccessibilityProvider>
-      </ThemeProvider>
-    </NextIntlClientProvider>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(organizationSchema),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(websiteSchema),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(softwareApplicationSchema),
+        }}
+      />
+      <NextIntlClientProvider messages={messages}>
+        <ThemeProvider>
+          <AccessibilityProvider>
+            <div className="flex min-h-screen flex-col">
+              <Nav />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+          </AccessibilityProvider>
+        </ThemeProvider>
+      </NextIntlClientProvider>
+    </>
   );
 }
