@@ -251,5 +251,68 @@
       "content": "Podemos atualizar esta Política de Privacidade periodicamente. Recomendamos que você revise esta página regularmente para se manter informado sobre como protegemos suas informações."
     },
     "lastUpdated": "Última atualização: Janeiro de 2026"
+  },
+  "tutorial": {
+    "stepIndicator": "Passo {current} de {total}",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "skip": "Pular",
+    "finish": "Finalizar",
+    "step1": {
+      "title": "Área de Texto",
+      "description": "Cole ou digite aqui a notícia que deseja verificar. O sistema analisará o conteúdo usando inteligência artificial."
+    },
+    "step2": {
+      "title": "Botão de Verificação",
+      "description": "Clique neste botão para iniciar a análise. O sistema verificará a veracidade da notícia usando IA do Google Gemini."
+    },
+    "step3": {
+      "title": "Indicador de Progresso",
+      "description": "Acompanhe o progresso da análise em tempo real. O sistema mostra cada etapa do processo de verificação."
+    },
+    "step4": {
+      "title": "Resultado da Análise",
+      "description": "Aqui você verá o resultado completo da verificação, incluindo score de confiabilidade, classificação e análise detalhada."
+    },
+    "step5": {
+      "title": "Histórico de Verificações",
+      "description": "Todas as suas verificações são salvas aqui para consulta posterior. Você pode revisar análises anteriores a qualquer momento."
+    },
+    "showExamples": "Ver Exemplos",
+    "closeExamples": "Fechar Exemplos",
+    "examples": {
+      "title": "Exemplos Práticos",
+      "description": "Teste o sistema com estes exemplos de notícias. Clique em 'Copiar' para usar no verificador.",
+      "footer": "Estes são apenas exemplos. Sempre verifique informações importantes através de múltiplas fontes confiáveis.",
+      "copy": "Copiar",
+      "copied": "Copiado!",
+      "category": {
+        "fake": "Falsa",
+        "true": "Verdadeira",
+        "partial": "Parcial"
+      },
+      "example1": {
+        "title": "Exemplo de Notícia Falsa",
+        "content": "BREAKING: Cientistas descobrem que beber água causa câncer. Estudo revela que 100% das pessoas que beberam água desenvolveram a doença. Especialistas recomendam evitar água completamente.",
+        "description": "Este é um exemplo claro de fake news com afirmações alarmistas e sem fontes confiáveis."
+      },
+      "example2": {
+        "title": "Exemplo de Notícia Verdadeira",
+        "content": "A Organização Mundial da Saúde (OMS) recomenda beber pelo menos 2 litros de água por dia para manter uma boa hidratação. Esta recomendação é baseada em estudos científicos revisados por pares.",
+        "description": "Esta notícia contém informações verificáveis e cita fontes confiáveis como a OMS."
+      },
+      "example3": {
+        "title": "Exemplo de Notícia Parcialmente Verdadeira",
+        "content": "Estudo recente mostra que café pode prevenir doenças cardíacas. Pesquisadores descobriram que beber 5 xícaras por dia reduz o risco em 50%. Todos devem começar a beber café imediatamente.",
+        "description": "Esta notícia mistura fatos reais (café pode ter benefícios) com exageros e recomendações não fundamentadas."
+      }
+    },
+    "contextualTips": {
+      "emptyInput": "💡 Dica: Cole ou digite uma notícia no campo acima para começar a verificação.",
+      "shortText": "💡 Dica: Textos muito curtos podem resultar em análises menos precisas. Tente incluir mais contexto.",
+      "firstVerification": "👋 Bem-vindo! Esta é sua primeira verificação. Use o botão 'Ver Exemplos' para testar o sistema.",
+      "dismiss": "Fechar"
+    },
+    "restart": "Reiniciar Tutorial"
   }
 }

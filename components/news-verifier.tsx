@@ -6,6 +6,7 @@ import { History } from "./history";
 import { Loader2 } from "lucide-react";
 import { VerificationResultDisplay } from "./verification-result";
 import { ProgressIndicator } from "./progress-indicator";
+import { useTutorialTarget } from "./tutorial-overlay";
 import type { VerificationResult } from "@/lib/gemini-analysis";
 
 export function NewsVerifier() {
@@ -16,6 +17,13 @@ export function NewsVerifier() {
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [isRateLimited, setIsRateLimited] = useState(false);
   const [hasRealtimeSearch, setHasRealtimeSearch] = useState(false);
+  
+  // Atributos para tutorial
+  const textareaTarget = useTutorialTarget("tutorial-textarea");
+  const buttonTarget = useTutorialTarget("tutorial-button");
+  const progressTarget = useTutorialTarget("tutorial-progress");
+  const resultTarget = useTutorialTarget("tutorial-result");
+  const historyTarget = useTutorialTarget("tutorial-history");
 
   const handleVerify = async () => {
     if (!content.trim()) {
@@ -116,6 +124,7 @@ export function NewsVerifier() {
 
         <div className="mb-8 rounded-lg border bg-card p-6 shadow-sm">
           <textarea
+            {...textareaTarget}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={t("hero.inputPlaceholder")}
@@ -123,6 +132,7 @@ export function NewsVerifier() {
             disabled={loading}
           />
           <button
+            {...buttonTarget}
             onClick={handleVerify}
             disabled={loading || !content.trim()}
             className="w-full rounded-md bg-primary px-6 py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
@@ -154,12 +164,20 @@ export function NewsVerifier() {
             </div>
           )}
 
-          <ProgressIndicator isActive={loading} hasRealtimeSearch={hasRealtimeSearch} />
+          <div {...progressTarget}>
+            <ProgressIndicator isActive={loading} hasRealtimeSearch={hasRealtimeSearch} />
+          </div>
 
-          {result && <VerificationResultDisplay result={result} />}
+          {result && (
+            <div {...resultTarget}>
+              <VerificationResultDisplay result={result} />
+            </div>
+          )}
         </div>
 
-        <History />
+        <div {...historyTarget}>
+          <History />
+        </div>
       </div>
     </div>
   );

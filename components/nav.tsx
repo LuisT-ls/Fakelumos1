@@ -3,10 +3,11 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { useTheme } from "./theme-provider";
-import { Moon, Sun, Accessibility, Languages } from "lucide-react";
+import { Moon, Sun, Accessibility, Languages, GraduationCap } from "lucide-react";
 import { useRouter, usePathname } from "@/i18n/routing";
 import { useState } from "react";
 import { AccessibilitySidebar } from "./accessibility-sidebar";
+import { useTutorial } from "./tutorial-provider";
 
 export function Nav() {
   const t = useTranslations();
@@ -15,8 +16,24 @@ export function Nav() {
   const pathname = usePathname();
   const [showAccessibilitySidebar, setShowAccessibilitySidebar] = useState(false);
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+  
+  // Tutorial hook (pode ser undefined se não estiver no contexto)
+  let tutorialContext;
+  try {
+    tutorialContext = useTutorial();
+  } catch {
+    // Não está no contexto do tutorial, tudo bem
+  }
 
   const currentLocale = pathname.split("/")[1] || "pt-BR";
+  
+  const handleRestartTutorial = () => {
+    if (tutorialContext) {
+      localStorage.removeItem("tutorialCompleted");
+      localStorage.removeItem("tutorialSeen");
+      tutorialContext.startTutorial();
+    }
+  };
 
   const changeLanguage = (locale: string) => {
     const pathWithoutLocale = pathname.replace(`/${currentLocale}`, "");
@@ -97,6 +114,17 @@ export function Nav() {
               )}
             </button>
 
+            {tutorialContext && (
+              <button
+                onClick={handleRestartTutorial}
+                className="rounded-md p-2 hover:bg-accent"
+                aria-label={t("tutorial.restart")}
+                title={t("tutorial.restart")}
+              >
+                <GraduationCap className="h-5 w-5" />
+              </button>
+            )}
+            
             <button
               onClick={() => setShowAccessibilitySidebar(true)}
               className="rounded-md p-2 hover:bg-accent"

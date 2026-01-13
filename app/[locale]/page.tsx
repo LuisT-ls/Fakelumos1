@@ -1,5 +1,8 @@
 import { NewsVerifier } from "@/components/news-verifier";
 import { TipsSection } from "@/components/tips-section";
+import { TutorialOverlay } from "@/components/tutorial-overlay";
+import { TutorialExamples } from "@/components/tutorial-examples";
+import { ContextualTips } from "@/components/contextual-tips";
 import { Metadata } from "next";
 
 export async function generateMetadata({
@@ -44,6 +47,9 @@ export async function generateMetadata({
 export default function HomePage() {
   return (
     <>
+      <TutorialOverlay />
+      <ContextualTips />
+      <TutorialExamples />
       <NewsVerifier />
       <TipsSection />
     </>

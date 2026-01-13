@@ -251,5 +251,68 @@
       "content": "We may update this Privacy Policy periodically. We recommend that you review this page regularly to stay informed about how we protect your information."
     },
     "lastUpdated": "Last updated: January 2025"
+  },
+  "tutorial": {
+    "stepIndicator": "Step {current} of {total}",
+    "next": "Next",
+    "previous": "Previous",
+    "skip": "Skip",
+    "finish": "Finish",
+    "step1": {
+      "title": "Text Area",
+      "description": "Paste or type here the news you want to verify. The system will analyze the content using artificial intelligence."
+    },
+    "step2": {
+      "title": "Verify Button",
+      "description": "Click this button to start the analysis. The system will verify the veracity of the news using Google Gemini AI."
+    },
+    "step3": {
+      "title": "Progress Indicator",
+      "description": "Track the analysis progress in real time. The system shows each step of the verification process."
+    },
+    "step4": {
+      "title": "Analysis Result",
+      "description": "Here you will see the complete verification result, including reliability score, classification, and detailed analysis."
+    },
+    "step5": {
+      "title": "Verification History",
+      "description": "All your verifications are saved here for later reference. You can review previous analyses at any time."
+    },
+    "showExamples": "View Examples",
+    "closeExamples": "Close Examples",
+    "examples": {
+      "title": "Practical Examples",
+      "description": "Test the system with these news examples. Click 'Copy' to use in the verifier.",
+      "footer": "These are just examples. Always verify important information through multiple reliable sources.",
+      "copy": "Copy",
+      "copied": "Copied!",
+      "category": {
+        "fake": "Fake",
+        "true": "True",
+        "partial": "Partial"
+      },
+      "example1": {
+        "title": "Fake News Example",
+        "content": "BREAKING: Scientists discover that drinking water causes cancer. Study reveals that 100% of people who drank water developed the disease. Experts recommend avoiding water completely.",
+        "description": "This is a clear example of fake news with alarmist claims and no reliable sources."
+      },
+      "example2": {
+        "title": "True News Example",
+        "content": "The World Health Organization (WHO) recommends drinking at least 2 liters of water per day to maintain good hydration. This recommendation is based on peer-reviewed scientific studies.",
+        "description": "This news contains verifiable information and cites reliable sources like WHO."
+      },
+      "example3": {
+        "title": "Partially True News Example",
+        "content": "Recent study shows that coffee can prevent heart disease. Researchers found that drinking 5 cups per day reduces risk by 50%. Everyone should start drinking coffee immediately.",
+        "description": "This news mixes real facts (coffee may have benefits) with exaggerations and unfounded recommendations."
+      }
+    },
+    "contextualTips": {
+      "emptyInput": "💡 Tip: Paste or type a news item in the field above to start verification.",
+      "shortText": "💡 Tip: Very short texts may result in less accurate analyses. Try to include more context.",
+      "firstVerification": "👋 Welcome! This is your first verification. Use the 'View Examples' button to test the system.",
+      "dismiss": "Close"
+    },
+    "restart": "Restart Tutorial"
   }
 }

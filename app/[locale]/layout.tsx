@@ -2,6 +2,7 @@ import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AccessibilityProvider } from "@/components/accessibility-provider";
+import { TutorialProvider } from "@/components/tutorial-provider";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -146,11 +147,13 @@ export default async function LocaleLayout({
       <NextIntlClientProvider messages={messages}>
         <ThemeProvider>
           <AccessibilityProvider>
-            <div className="flex min-h-screen flex-col">
-              <Nav />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </div>
+            <TutorialProvider>
+              <div className="flex min-h-screen flex-col">
+                <Nav />
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </div>
+            </TutorialProvider>
           </AccessibilityProvider>
         </ThemeProvider>
       </NextIntlClientProvider>
