@@ -47,7 +47,9 @@ export interface VerificationResult {
 }
 
 /**
- * Detecta se a pergunta envolve fatos pós-2022
+ * Detecta se a pergunta envolve fatos muito recentes (últimas semanas/meses)
+ * Nota: O Gemini agora tem aprendizado contínuo e pode processar informações atualizadas.
+ * Esta função é usada para complementar com Google Search quando necessário.
  */
 function isPerguntaPos2022(text: string): boolean {
   const regexAno = /\b(202[3-9]|20[3-9][0-9]|21[0-9][0-9])\b/;
@@ -58,6 +60,8 @@ function isPerguntaPos2022(text: string): boolean {
     "últimas notícias",
     "recente",
     "agora",
+    "nas últimas semanas",
+    "nas últimas horas",
   ];
 
   if (regexAno.test(text.toLowerCase())) return true;
@@ -432,9 +436,9 @@ async function generateContentWithModel(
       : "em inglês";
 
   const prompt = `Analise detalhadamente o seguinte texto para verificar sua veracidade. 
-    Observe que sua base de conhecimento vai até 2022, então para eventos após essa data, 
-    indique claramente essa limitação na análise e foque nos elementos verificáveis do texto
-    que não dependem do período temporal. Forneça a resposta ${promptLang}:
+    Use sua base de conhecimento atualizada para verificar fatos, datas, eventos e informações mencionadas no texto.
+    Seja criterioso e analise todos os elementos do texto, incluindo afirmações sobre eventos recentes.
+    Forneça a resposta ${promptLang}:
     
     Data atual: ${currentDate.toISOString()}
     Texto para análise: "${text}"
@@ -457,7 +461,10 @@ async function generateContentWithModel(
         "elementos_nao_verificaveis": ["array"],
         "sugestoes_verificacao": ["array"]
       }
-    }`;
+    }
+    
+    Nota: O campo "limitacao_temporal" deve ser usado apenas se houver elementos que realmente não possam ser verificados,
+    como informações muito específicas ou não documentadas. Para eventos recentes, use sua base de conhecimento atualizada.`;
 
   try {
     console.log(`[${localLogId}] Enviando requisição para o modelo...`);
@@ -597,7 +604,7 @@ export async function handleVerification(
 
   try {
     if (isPost2022) {
-      console.log(`[${logId}] Fluxo: Pergunta pós-2022 - usando Gemini + Google Search`);
+      console.log(`[${logId}] Fluxo: Conteúdo recente detectado - usando Gemini + Google Search para complementar`);
       
       // 1. Analisa com Gemini
       console.log(`[${logId}] Passo 1: Analisando com Gemini...`);
