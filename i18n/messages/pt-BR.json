@@ -314,5 +314,22 @@
       "dismiss": "Fechar"
     },
     "restart": "Reiniciar Tutorial"
+  },
+  "seo": {
+    "content": {
+      "title": "Verificador de Fake News Gratuito - Detector de Notícias Falsas com IA",
+      "paragraph1": "Bem-vindo ao Fake Lumos, o melhor verificador de fake news e detector de notícias falsas disponível online. Nossa ferramenta utiliza inteligência artificial avançada do Google Gemini para analisar e verificar a veracidade de notícias em segundos, ajudando você a combater a desinformação e identificar fake news de forma rápida e eficiente.",
+      "paragraph2": "Como verificador de fake news gratuito, oferecemos uma solução completa de fact-checking que analisa múltiplos aspectos do conteúdo, incluindo fontes, padrões de linguagem, fatos verificáveis e indicadores de desinformação. Nosso detector de fake news é fácil de usar e não requer cadastro ou pagamento.",
+      "subtitle1": "Por que usar nosso verificador de fake news?",
+      "paragraph3": "Em um mundo onde a desinformação se espalha rapidamente, ter acesso a um detector de fake news confiável é essencial. Nosso verificador de notícias falsas utiliza tecnologia de ponta em inteligência artificial para fornecer análises detalhadas e precisas, ajudando você a tomar decisões informadas sobre o conteúdo que consome e compartilha.",
+      "subtitle2": "Recursos do nosso detector de fake news",
+      "paragraph4": "Nosso verificador de fake news oferece diversos recursos avançados:",
+      "feature1": "Análise instantânea com inteligência artificial do Google Gemini",
+      "feature2": "Score de confiabilidade e classificação detalhada (Verdadeiro, Falso, Parcial, etc.)",
+      "feature3": "Identificação de elementos verdadeiros, falsos e suspeitos",
+      "feature4": "Busca em tempo real de fontes confiáveis para notícias recentes",
+      "feature5": "Histórico de verificações para consulta posterior",
+      "paragraph5": "Seja você um jornalista, pesquisador, educador ou cidadão preocupado com a veracidade das informações, nosso verificador de fake news está aqui para ajudá-lo. Use nossa ferramenta gratuita sempre que precisar verificar uma notícia suspeita e ajude a combater a desinformação na internet."
+    }
   }
 }

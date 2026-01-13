@@ -314,5 +314,22 @@
       "dismiss": "Close"
     },
     "restart": "Restart Tutorial"
+  },
+  "seo": {
+    "content": {
+      "title": "Free Fake News Verifier - Fake News Detector with AI",
+      "paragraph1": "Welcome to Fake Lumos, the best fake news verifier and fake news detector available online. Our tool uses advanced artificial intelligence from Google Gemini to analyze and verify news veracity in seconds, helping you combat disinformation and identify fake news quickly and efficiently.",
+      "paragraph2": "As a free fake news verifier, we offer a complete fact-checking solution that analyzes multiple aspects of content, including sources, language patterns, verifiable facts, and disinformation indicators. Our fake news detector is easy to use and requires no registration or payment.",
+      "subtitle1": "Why use our fake news verifier?",
+      "paragraph3": "In a world where disinformation spreads rapidly, having access to a reliable fake news detector is essential. Our fake news verifier uses cutting-edge artificial intelligence technology to provide detailed and accurate analyses, helping you make informed decisions about the content you consume and share.",
+      "subtitle2": "Features of our fake news detector",
+      "paragraph4": "Our fake news verifier offers various advanced features:",
+      "feature1": "Instant analysis with Google Gemini artificial intelligence",
+      "feature2": "Reliability score and detailed classification (True, False, Partial, etc.)",
+      "feature3": "Identification of true, false, and suspicious elements",
+      "feature4": "Real-time search for reliable sources for recent news",
+      "feature5": "Verification history for later consultation",
+      "paragraph5": "Whether you're a journalist, researcher, educator, or citizen concerned about information veracity, our fake news verifier is here to help you. Use our free tool whenever you need to verify a suspicious news item and help combat disinformation on the internet."
+    }
   }
 }

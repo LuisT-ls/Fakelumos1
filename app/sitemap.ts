@@ -7,12 +7,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Páginas principais para cada idioma
   const pages = [
-    '',
-    '/how-it-works',
-    '/tips',
-    '/about',
-    '/terms',
-    '/privacy',
+    { path: '', priority: 1.0, changeFreq: 'daily' as const },
+    { path: '/how-it-works', priority: 0.9, changeFreq: 'weekly' as const },
+    { path: '/tips', priority: 0.9, changeFreq: 'weekly' as const },
+    { path: '/about', priority: 0.8, changeFreq: 'monthly' as const },
+    { path: '/terms', priority: 0.5, changeFreq: 'yearly' as const },
+    { path: '/privacy', priority: 0.5, changeFreq: 'yearly' as const },
   ];
 
   const sitemapEntries: MetadataRoute.Sitemap = [];
@@ -21,15 +21,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
   routing.locales.forEach((locale) => {
     pages.forEach((page) => {
       sitemapEntries.push({
-        url: `${baseUrl}/${locale}${page}`,
+        url: `${baseUrl}/${locale}${page.path}`,
         lastModified: currentDate,
-        changeFrequency: page === '' ? 'daily' : 'weekly',
-        priority: page === '' ? 1.0 : 0.8,
+        changeFrequency: page.changeFreq,
+        priority: page.priority,
         alternates: {
           languages: Object.fromEntries(
             routing.locales.map((loc) => [
               loc,
-              `${baseUrl}/${loc}${page}`,
+              `${baseUrl}/${loc}${page.path}`,
             ])
           ),
         },
