@@ -6,6 +6,7 @@ function getGenAI() {
   if (!API_KEY) {
     throw new Error("NEXT_PUBLIC_GEMINI_API_KEY não está definida");
   }
+  // Usando a API v1 (padrão) em vez de v1beta para ter acesso a mais modelos
   return new GoogleGenerativeAI(API_KEY);
 }
 
@@ -307,14 +308,22 @@ async function checkWithGemini(
     console.log(`[${logId}] Instância do Gemini AI criada com sucesso`);
     
     // Lista de modelos para tentar em ordem de preferência
-    // Começamos com modelos mais leves que geralmente têm mais quota
-    const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.5-pro", "gemini-pro"];
+    // Baseado na documentação oficial: https://ai.google.dev/gemini-api/docs/models?hl=pt-br
+    // Ordem: modelos mais leves primeiro (mais quota), depois modelos mais pesados
+    // Modelos estáveis têm prioridade sobre previews
+    const modelsToTry = [
+      "gemini-2.5-flash",        // Modelo estável mais leve (recomendado para produção)
+      "gemini-2.0-flash-lite",   // Modelo leve de segunda geração
+      "gemini-3-flash-preview",   // Preview do modelo mais recente e equilibrado
+      "gemini-2.5-pro",          // Modelo estável mais pesado (confirmado disponível, mas com rate limit)
+      "gemini-3-pro-preview",    // Preview do modelo mais inteligente
+    ];
     console.log(`[${logId}] Modelos para tentar:`, modelsToTry.join(", "));
     
     let lastError: Error | null = null;
     let rateLimitCount = 0;
-    const maxRetries = 3; // Máximo de 3 tentativas com retry
-    const baseDelay = 2000; // 2 segundos base
+    const maxRetries = 5; // Aumentado para 5 tentativas com retry (especialmente para rate limit)
+    const baseDelay = 5000; // Aumentado para 5 segundos base (rate limit geralmente reseta em 1 minuto)
     
     for (const modelName of modelsToTry) {
       console.log(`[${logId}] Tentando modelo: ${modelName}`);
@@ -354,8 +363,8 @@ async function checkWithGemini(
             
             // Se ainda há tentativas restantes, tenta novamente com delay
             if (attempt < maxRetries - 1) {
-              const delayMs = baseDelay * Math.pow(2, attempt); // Backoff exponencial
-              console.warn(`[${logId}] Aguardando ${delayMs}ms antes de retry (backoff exponencial)...`);
+              const delayMs = baseDelay * Math.pow(2, attempt); // Backoff exponencial: 5s, 10s, 20s, 40s, 80s
+              console.warn(`[${logId}] Aguardando ${delayMs}ms (${(delayMs / 1000).toFixed(1)}s) antes de retry (backoff exponencial para rate limit)...`);
               await delay(delayMs);
               continue; // Tenta novamente com este modelo
             } else {
