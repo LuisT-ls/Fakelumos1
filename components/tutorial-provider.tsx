@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-interface TutorialContextType {
+export interface TutorialContextType {
   isTutorialActive: boolean;
   currentStep: number;
   totalSteps: number;
