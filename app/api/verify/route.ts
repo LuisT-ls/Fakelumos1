@@ -35,6 +35,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Log de segurança se flags foram detectadas
+    if (validation.securityFlags && validation.securityFlags.length > 0) {
+      console.warn(`[${requestId}] ⚠️ FLAGS DE SEGURANÇA DETECTADAS:`, validation.securityFlags);
+      console.warn(`[${requestId}] Tamanho original: ${content.length}, Tamanho após sanitização: ${validation.sanitizedText.length}`);
+    }
+
     // Verifica se a API key está configurada
     const apiKeyExists = !!process.env.NEXT_PUBLIC_GEMINI_API_KEY;
     console.log(`[${requestId}] API Key configurada:`, apiKeyExists ? "Sim" : "Não");

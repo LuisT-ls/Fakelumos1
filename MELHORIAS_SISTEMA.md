@@ -233,12 +233,6 @@ Permitir verificar múltiplas notícias de uma vez:
 - Estatísticas pessoais
 - Sincronização entre dispositivos (com autenticação)
 
-### 14. **Tutorial Interativo**
-Onboarding para novos usuários:
-- Tour guiado
-- Exemplos práticos
-- Dicas contextuais
-
 ---
 
 ## 🔒 Melhorias de Segurança
@@ -247,11 +241,6 @@ Onboarding para novos usuários:
 - Detecção de spam
 - Análise de padrões suspeitos
 - Limite de requisições por sessão
-
-### 16. **Sanitização Avançada**
-- Remoção de scripts maliciosos
-- Validação de encoding
-- Proteção contra injection
 
 ### 17. **Logging e Monitoramento**
 - Logs estruturados
