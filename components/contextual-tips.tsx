@@ -26,9 +26,17 @@ export function ContextualTips() {
   useEffect(() => {
     const stored = localStorage.getItem("dismissedContextualTips");
     if (stored) {
-      const parsed = new Set(JSON.parse(stored));
-      setDismissedTips(parsed);
-      dismissedTipsRef.current = parsed;
+      try {
+        const parsedArray = JSON.parse(stored) as string[];
+        if (Array.isArray(parsedArray)) {
+          const parsed = new Set<string>(parsedArray);
+          setDismissedTips(parsed);
+          dismissedTipsRef.current = parsed;
+        }
+      } catch (error) {
+        // Se houver erro ao fazer parse, ignora e usa Set vazio
+        console.warn("Erro ao carregar dicas dispensadas:", error);
+      }
     }
   }, []);
 
