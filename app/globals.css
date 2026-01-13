@@ -123,6 +123,113 @@
     cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="black" opacity="0.5"/></svg>'), auto !important;
   }
 
+  /* Scroll suave para todo o site */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Scrollbar customizada elegante para textarea e elementos com scroll */
+  .custom-scrollbar {
+    scrollbar-width: thin; /* Firefox - scrollbar fina */
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent; /* Firefox - cor da scrollbar */
+    scroll-behavior: smooth;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px; /* Largura da scrollbar */
+    height: 8px; /* Altura da scrollbar (para scroll horizontal) */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent; /* Fundo transparente */
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3); /* Cor do thumb */
+    border-radius: 10px;
+    transition: background 0.2s ease;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5); /* Cor mais escura no hover */
+  }
+
+  /* Scrollbar customizada para textarea (mais visível) */
+  .textarea-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--primary) / 0.4) hsl(var(--muted) / 0.2);
+    scroll-behavior: smooth;
+  }
+
+  .textarea-scrollbar::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .textarea-scrollbar::-webkit-scrollbar-track {
+    background: hsl(var(--muted) / 0.2);
+    border-radius: 10px;
+    margin: 4px;
+  }
+
+  .textarea-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.4);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: background 0.2s ease;
+  }
+
+  .textarea-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.6);
+    background-clip: padding-box;
+  }
+
+  .dark .textarea-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.5);
+  }
+
+  .dark .textarea-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.7);
+  }
+
+  /* Scrollbar customizada para o body/html (scroll geral do site) */
+  body {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.2) transparent;
+  }
+
+  body::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  body::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+    border-left: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  body::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 10px;
+    border: 2px solid hsl(var(--background));
+    background-clip: padding-box;
+    transition: background 0.2s ease;
+  }
+
+  body::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+    background-clip: padding-box;
+  }
+
+  .dark body::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.4);
+  }
+
+  .dark body::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.6);
+  }
+
   .scrollbar-hide {
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE/Edge */

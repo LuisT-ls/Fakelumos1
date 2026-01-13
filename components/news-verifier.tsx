@@ -97,7 +97,7 @@ export function NewsVerifier() {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={t("hero.inputPlaceholder")}
-            className="mb-4 min-h-[200px] w-full rounded-md border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="textarea-scrollbar mb-4 min-h-[200px] w-full rounded-md border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-y"
             disabled={loading}
           />
           <button

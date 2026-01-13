@@ -322,8 +322,9 @@ async function checkWithGemini(
     
     let lastError: Error | null = null;
     let rateLimitCount = 0;
-    const maxRetries = 5; // Aumentado para 5 tentativas com retry (especialmente para rate limit)
-    const baseDelay = 5000; // Aumentado para 5 segundos base (rate limit geralmente reseta em 1 minuto)
+    const maxRetries = 2; // Reduzido para 2 tentativas (rate limit não resolve rápido)
+    const baseDelay = 1000; // Reduzido para 1 segundo base (resposta mais rápida)
+    const rateLimitMaxRetries = 1; // Apenas 1 tentativa para rate limit (tenta próximo modelo imediatamente)
     
     for (const modelName of modelsToTry) {
       console.log(`[${logId}] Tentando modelo: ${modelName}`);
@@ -361,15 +362,17 @@ async function checkWithGemini(
             rateLimitCount++;
             console.warn(`[${logId}] ⚠️ RATE LIMIT detectado no modelo ${modelName} (tentativa ${attempt + 1})`);
             
-            // Se ainda há tentativas restantes, tenta novamente com delay
-            if (attempt < maxRetries - 1) {
-              const delayMs = baseDelay * Math.pow(2, attempt); // Backoff exponencial: 5s, 10s, 20s, 40s, 80s
-              console.warn(`[${logId}] Aguardando ${delayMs}ms (${(delayMs / 1000).toFixed(1)}s) antes de retry (backoff exponencial para rate limit)...`);
+            // Para rate limit, tentamos apenas 1 vez por modelo e depois vamos para o próximo
+            // Rate limit geralmente não resolve em segundos, então não faz sentido esperar muito
+            if (attempt < rateLimitMaxRetries) {
+              // Apenas 1 tentativa rápida com delay curto (1s)
+              const delayMs = baseDelay; // 1 segundo apenas
+              console.warn(`[${logId}] Aguardando ${delayMs}ms (${(delayMs / 1000).toFixed(1)}s) antes de retry rápido...`);
               await delay(delayMs);
-              continue; // Tenta novamente com este modelo
+              continue; // Tenta novamente com este modelo (apenas 1 vez)
             } else {
-              // Se esgotou as tentativas para este modelo, tenta o próximo
-              console.warn(`[${logId}] Esgotadas tentativas para ${modelName}, tentando próximo modelo...`);
+              // Se esgotou as tentativas para este modelo, tenta o próximo imediatamente
+              console.warn(`[${logId}] Rate limit persistente em ${modelName}, tentando próximo modelo imediatamente...`);
               lastError = error instanceof Error ? error : new Error(String(error));
               break; // Sai do loop de retry e tenta próximo modelo
             }
