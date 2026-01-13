@@ -16,6 +16,14 @@
     "rateLimitTip": "💡 Consejo: La cuota generalmente se restablece cada minuto. Intente nuevamente en unos momentos.",
     "reasons": "Razones:"
   },
+  "progress": {
+    "title": "Analizando noticia",
+    "validating": "Validando entrada",
+    "analyzing": "Analizando con IA",
+    "searching": "Buscando fuentes",
+    "adjusting": "Ajustando resultado",
+    "generating": "Generando informe"
+  },
   "history": {
     "title": "Historial de Verificaciones",
     "empty": "Aún no se han realizado verificaciones",

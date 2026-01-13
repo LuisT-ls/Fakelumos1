@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { History } from "./history";
 import { Loader2 } from "lucide-react";
 import { VerificationResultDisplay } from "./verification-result";
+import { ProgressIndicator } from "./progress-indicator";
 import type { VerificationResult } from "@/lib/gemini-analysis";
 
 export function NewsVerifier() {
@@ -14,6 +15,7 @@ export function NewsVerifier() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [isRateLimited, setIsRateLimited] = useState(false);
+  const [hasRealtimeSearch, setHasRealtimeSearch] = useState(false);
 
   const handleVerify = async () => {
     if (!content.trim()) {
@@ -21,10 +23,30 @@ export function NewsVerifier() {
       return;
     }
 
+    // Detectar se precisa de busca em tempo real (mesma lógica do backend)
+    const isPost2022 = (text: string): boolean => {
+      const regexAno = /\b(202[3-9]|20[3-9][0-9]|21[0-9][0-9])\b/;
+      const palavrasChave = [
+        "atualmente",
+        "hoje",
+        "neste ano",
+        "últimas notícias",
+        "recente",
+        "agora",
+        "nas últimas semanas",
+        "nas últimas horas",
+      ];
+      if (regexAno.test(text.toLowerCase())) return true;
+      if (palavrasChave.some((palavra) => text.toLowerCase().includes(palavra)))
+        return true;
+      return false;
+    };
+
     setLoading(true);
     setError(null);
     setResult(null);
     setIsRateLimited(false);
+    setHasRealtimeSearch(isPost2022(content));
 
     try {
       const locale = window.location.pathname.split("/")[1] || "pt-BR";
@@ -131,6 +153,8 @@ export function NewsVerifier() {
               )}
             </div>
           )}
+
+          <ProgressIndicator isActive={loading} hasRealtimeSearch={hasRealtimeSearch} />
 
           {result && <VerificationResultDisplay result={result} />}
         </div>

@@ -16,6 +16,14 @@
     "rateLimitTip": "💡 Tip: The quota is usually reset every minute. Try again in a few moments.",
     "reasons": "Reasons:"
   },
+  "progress": {
+    "title": "Analyzing news",
+    "validating": "Validating input",
+    "analyzing": "Analyzing with AI",
+    "searching": "Searching sources",
+    "adjusting": "Adjusting result",
+    "generating": "Generating report"
+  },
   "history": {
     "title": "Verification History",
     "empty": "No verifications performed yet",
