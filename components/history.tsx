@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
+import { CheckCircle2, XCircle, AlertTriangle, Trash2 } from "lucide-react";
+import { ConfirmDialog } from "./confirm-dialog";
 import type { VerificationResult } from "@/lib/gemini-analysis";
 
 interface HistoryEntry {
@@ -15,6 +16,7 @@ interface HistoryEntry {
 export function History() {
   const t = useTranslations();
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("verificationHistory");
@@ -45,6 +47,17 @@ export function History() {
     };
   }, []);
 
+  const handleClearHistory = () => {
+    localStorage.removeItem("verificationHistory");
+    setHistory([]);
+    
+    // Disparar evento para atualizar outros componentes
+    if (typeof window !== "undefined") {
+      const event = new CustomEvent("customStorageChange");
+      window.dispatchEvent(event);
+    }
+  };
+
   if (history.length === 0) {
     return (
       <div className="rounded-lg border bg-card p-6 shadow-sm">
@@ -55,8 +68,30 @@ export function History() {
   }
 
   return (
-    <div className="rounded-lg border bg-card p-6 shadow-sm">
-      <h2 className="mb-4 text-2xl font-bold">{t("history.title")}</h2>
+    <>
+      <ConfirmDialog
+        isOpen={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+        onConfirm={handleClearHistory}
+        title={t("history.clearConfirm.title")}
+        message={t("history.clearConfirm.message")}
+        confirmText={t("history.clearConfirm.confirm")}
+        cancelText={t("history.clearConfirm.cancel")}
+        variant="danger"
+      />
+      
+      <div className="rounded-lg border bg-card p-6 shadow-sm">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-2xl font-bold">{t("history.title")}</h2>
+          <button
+            onClick={() => setShowConfirmDialog(true)}
+            className="flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive hover:text-destructive-foreground"
+            aria-label={t("history.clear")}
+          >
+            <Trash2 className="h-4 w-4" />
+            <span className="hidden sm:inline">{t("history.clear")}</span>
+          </button>
+        </div>
       <div className="space-y-4">
         {history.map((entry) => (
           <div
@@ -92,6 +127,7 @@ export function History() {
           </div>
         ))}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

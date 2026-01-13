@@ -29,7 +29,19 @@
     "empty": "Aún no se han realizado verificaciones",
     "fake": "Falsa",
     "true": "Verdadera",
-    "confidence": "Confianza"
+    "confidence": "Confianza",
+    "clear": "Limpiar Historial",
+    "clearConfirm": {
+      "title": "Limpiar Historial",
+      "message": "¿Estás seguro de que deseas limpiar todo el historial de verificaciones? Esta acción no se puede deshacer.",
+      "confirm": "Limpiar",
+      "cancel": "Cancelar"
+    }
+  },
+  "common": {
+    "close": "Cerrar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar"
   },
   "tips": {
     "title": "Consejos para Identificar Noticias Falsas",

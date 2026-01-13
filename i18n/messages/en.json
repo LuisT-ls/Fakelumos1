@@ -29,7 +29,19 @@
     "empty": "No verifications performed yet",
     "fake": "Fake",
     "true": "True",
-    "confidence": "Confidence"
+    "confidence": "Confidence",
+    "clear": "Clear History",
+    "clearConfirm": {
+      "title": "Clear History",
+      "message": "Are you sure you want to clear all verification history? This action cannot be undone.",
+      "confirm": "Clear",
+      "cancel": "Cancel"
+    }
+  },
+  "common": {
+    "close": "Close",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
   },
   "tips": {
     "title": "Tips to Identify Fake News",

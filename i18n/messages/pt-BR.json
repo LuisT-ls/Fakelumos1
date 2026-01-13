@@ -29,7 +29,19 @@
     "empty": "Nenhuma verificação realizada ainda",
     "fake": "Falsa",
     "true": "Verdadeira",
-    "confidence": "Confiança"
+    "confidence": "Confiança",
+    "clear": "Limpar Histórico",
+    "clearConfirm": {
+      "title": "Limpar Histórico",
+      "message": "Tem certeza que deseja limpar todo o histórico de verificações? Esta ação não pode ser desfeita.",
+      "confirm": "Limpar",
+      "cancel": "Cancelar"
+    }
+  },
+  "common": {
+    "close": "Fechar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar"
   },
   "tips": {
     "title": "Dicas para Identificar Fake News",
