@@ -81,7 +81,36 @@
   },
   "howItWorks": {
     "title": "Cómo Funciona",
-    "description": "Nuestro sistema utiliza inteligencia artificial de Google Gemini para analizar noticias e identificar posibles noticias falsas."
+    "description": "Nuestro sistema utiliza inteligencia artificial de Google Gemini para analizar noticias e identificar posibles noticias falsas.",
+    "subtitle": "Vea cómo nuestra herramienta analiza y verifica noticias paso a paso.",
+    "stepsTitle": "Etapas del Proceso",
+    "steps": [
+      {
+        "number": "01",
+        "title": "Ingresa el Texto de la Noticia",
+        "description": "Pega o escribe el contenido de la noticia que deseas verificar en el cuadro de texto de la página principal. Cuanto más completo sea el texto, más preciso será el análisis."
+      },
+      {
+        "number": "02",
+        "title": "Análisis con Inteligencia Artificial",
+        "description": "El sistema envía el texto a Google Gemini, que analiza patrones lingüísticos, consistencia de la información, contexto histórico y posibles indicadores de desinformación."
+      },
+      {
+        "number": "03",
+        "title": "Verificación en Fuentes Externas",
+        "description": "Para noticias recientes, complementamos el análisis con búsquedas en fuentes confiables a través de Google Search, cruzando la información con medios de comunicación reconocidos."
+      },
+      {
+        "number": "04",
+        "title": "Resultado y Clasificación",
+        "description": "Recibes un resultado detallado con una clasificación (Comprobadamente Verdadero, Parcialmente Verdadero, No Verificable, Probablemente Falso o Comprobadamente Falso), un índice de confiabilidad y los principales motivos que fundamentaron la conclusión."
+      }
+    ],
+    "technologyTitle": "Tecnología Utilizada",
+    "technologyDescription": "Fake Lumos combina el poder de Google Gemini — uno de los modelos de lenguaje más avanzados del mundo — con búsquedas en tiempo real para ofrecer análisis precisos y actualizados. El sistema aprende continuamente y es capaz de identificar desinformación con un alto grado de confiabilidad.",
+    "limitationsTitle": "Limitaciones Importantes",
+    "limitationsDescription": "Ninguna herramienta automatizada es 100% infalible. Siempre recomendamos consultar múltiples fuentes confiables y agencias de verificación especializadas antes de sacar conclusiones definitivas o compartir información.",
+    "step": "Etapa"
   },
   "about": {
     "title": "Acerca de",

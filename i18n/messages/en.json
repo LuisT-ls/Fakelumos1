@@ -81,7 +81,36 @@
   },
   "howItWorks": {
     "title": "How It Works",
-    "description": "Our system uses Google Gemini artificial intelligence to analyze news and identify possible fake news."
+    "description": "Our system uses Google Gemini artificial intelligence to analyze news and identify possible fake news.",
+    "subtitle": "See how our tool analyzes and verifies news step by step.",
+    "stepsTitle": "Process Steps",
+    "steps": [
+      {
+        "number": "01",
+        "title": "Enter the News Text",
+        "description": "Paste or type the content of the news you want to verify in the text box on the main page. The more complete the text, the more accurate the analysis will be."
+      },
+      {
+        "number": "02",
+        "title": "Artificial Intelligence Analysis",
+        "description": "The system sends the text to Google Gemini, which analyzes linguistic patterns, information consistency, historical context, and possible misinformation indicators."
+      },
+      {
+        "number": "03",
+        "title": "Verification Against External Sources",
+        "description": "For recent news, we complement the analysis with searches in reliable sources via Google Search, cross-referencing information with recognized media outlets."
+      },
+      {
+        "number": "04",
+        "title": "Result and Classification",
+        "description": "You receive a detailed result with a classification (Proven True, Partially True, Not Verifiable, Probably False, or Proven False), a reliability score, and the main reasons behind the conclusion."
+      }
+    ],
+    "technologyTitle": "Technology Used",
+    "technologyDescription": "Fake Lumos combines the power of Google Gemini — one of the most advanced language models in the world — with real-time searches to deliver accurate and up-to-date analyses. The system continuously learns and is capable of identifying misinformation with a high degree of reliability.",
+    "limitationsTitle": "Important Limitations",
+    "limitationsDescription": "No automated tool is 100% infallible. We always recommend consulting multiple reliable sources and specialized fact-checking agencies before drawing definitive conclusions or sharing information.",
+    "step": "Step"
   },
   "about": {
     "title": "About",
