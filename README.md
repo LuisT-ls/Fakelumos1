@@ -290,7 +290,7 @@ Este projeto foi desenvolvido como trabalho final na disciplina **'Algoritmo, Po
 
 ## 📧 Contato
 
-- **Email**: luishg213@outlook.com
+- **Email**: luis.dev474@gmail.com
 - **Telefone**: +55 (71) 9 9332-2305
 
 ## 🌟 Contribuições

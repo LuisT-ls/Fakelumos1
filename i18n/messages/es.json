@@ -64,6 +64,10 @@
     "verifyMedia": {
       "title": "Verifica Imágenes y Videos",
       "description": "Las imágenes y videos pueden ser editados o sacados de contexto. Usa herramientas de verificación inversa de imágenes para confirmar el origen."
+    },
+    "checkFactChecking": {
+      "title": "Consulta Agencias de Verificación",
+      "description": "Agencias especializadas como Chequeado, Maldita.es y AFP Factual investigan y verifican información que circula en redes. Consúltalas antes de compartir."
     }
   },
   "footer": {
@@ -228,7 +232,7 @@
     },
     "section7": {
       "title": "7. Contacto",
-      "content": "Si tienes preguntas sobre estos Términos de Uso, contáctanos a través del correo electrónico: luishg213@outlook.com"
+      "content": "Si tienes preguntas sobre estos Términos de Uso, contáctanos a través del correo electrónico: luis.dev474@gmail.com"
     },
     "lastUpdated": "Última actualización: Enero de 2025"
   },

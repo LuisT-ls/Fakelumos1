@@ -64,6 +64,10 @@
     "verifyMedia": {
       "title": "Verifique Imagens e Vídeos",
       "description": "Imagens e vídeos podem ser editados ou tirados de contexto. Use ferramentas de verificação reversa de imagens para confirmar a origem."
+    },
+    "checkFactChecking": {
+      "title": "Consulte Agências de Fact-Checking",
+      "description": "Agências especializadas como Agência Lupa, Aos Fatos e AFP Checamos investigam e verificam informações que circulam nas redes. Consulte-as antes de compartilhar."
     }
   },
   "footer": {
@@ -228,7 +232,7 @@
     },
     "section7": {
       "title": "7. Contato",
-      "content": "Se você tiver dúvidas sobre estes Termos de Uso, entre em contato conosco através do email: luishg213@outlook.com"
+      "content": "Se você tiver dúvidas sobre estes Termos de Uso, entre em contato conosco através do email: luis.dev474@gmail.com"
     },
     "lastUpdated": "Última atualização: Janeiro de 2026"
   },

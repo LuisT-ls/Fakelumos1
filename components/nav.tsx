@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { useTheme } from "./theme-provider";
 import { Moon, Sun, Accessibility, Languages, GraduationCap } from "lucide-react";
@@ -26,7 +26,7 @@ export function Nav() {
     tutorialContext = undefined;
   }
 
-  const currentLocale = pathname.split("/")[1] || "pt-BR";
+  const currentLocale = useLocale();
   
   const handleRestartTutorial = () => {
     if (tutorialContext) {
@@ -37,8 +37,7 @@ export function Nav() {
   };
 
   const changeLanguage = (locale: string) => {
-    const pathWithoutLocale = pathname.replace(`/${currentLocale}`, "");
-    router.push(pathWithoutLocale || "/", { locale });
+    router.push(pathname || "/", { locale });
     setShowLanguageMenu(false);
   };
 

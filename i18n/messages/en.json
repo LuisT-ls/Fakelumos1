@@ -64,6 +64,10 @@
     "verifyMedia": {
       "title": "Verify Images and Videos",
       "description": "Images and videos can be edited or taken out of context. Use reverse image verification tools to confirm the origin."
+    },
+    "checkFactChecking": {
+      "title": "Consult Fact-Checking Agencies",
+      "description": "Specialized agencies like Snopes, PolitiFact, and FactCheck.org investigate and verify information circulating online. Check them before sharing anything."
     }
   },
   "footer": {
@@ -228,7 +232,7 @@
     },
     "section7": {
       "title": "7. Contact",
-      "content": "If you have questions about these Terms of Use, please contact us at: luishg213@outlook.com"
+      "content": "If you have questions about these Terms of Use, please contact us at: luis.dev474@gmail.com"
     },
     "lastUpdated": "Last updated: January 2025"
   },

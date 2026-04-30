@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { CheckCircle2, Calendar, Search, AlertTriangle, Image } from "lucide-react";
+import { CheckCircle2, Calendar, Search, AlertTriangle, Image, ShieldCheck } from "lucide-react";
 
 export function TipsSection() {
   const t = useTranslations();
@@ -26,6 +26,10 @@ export function TipsSection() {
     {
       key: "verifyMedia",
       icon: Image,
+    },
+    {
+      key: "checkFactChecking",
+      icon: ShieldCheck,
     },
   ];
 
