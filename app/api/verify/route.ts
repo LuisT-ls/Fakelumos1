@@ -90,27 +90,30 @@ export async function POST(request: NextRequest) {
         console.error(`[${requestId}] Erro ao serializar detalhes:`, e);
       }
       
-      // Tratamento específico para rate limiting
+      // Tratamento específico para rate limiting e sobrecarga
       const isRateLimit = 
         error.message.includes("RATE_LIMIT_EXCEEDED") ||
         error.message.includes("429") ||
+        error.message.includes("503") ||
         error.message.includes("Quota exceeded") ||
-        error.message.includes("Too Many Requests");
+        error.message.includes("Too Many Requests") ||
+        error.message.includes("Service Unavailable") ||
+        error.message.includes("high demand");
       
       if (isRateLimit) {
-        console.warn(`[${requestId}] ⚠️ RATE LIMIT DETECTADO - Quota da API excedida`);
+        console.warn(`[${requestId}] ⚠️ SOBRECARGA/RATE LIMIT DETECTADO`);
         console.warn(`[${requestId}] Mensagem original:`, error.message);
         return NextResponse.json(
           {
             error:
               locale === "pt-BR"
-                ? "A quota da API foi excedida. Por favor, aguarde alguns minutos antes de tentar novamente. Se o problema persistir, entre em contato com o suporte."
+                ? "O serviço está temporariamente sobrecarregado. Por favor, aguarde alguns instantes e tente novamente. Se o problema persistir, entre em contato com o suporte."
                 : locale === "es"
-                ? "Se ha excedido la cuota de la API. Por favor, espere unos minutos antes de intentar nuevamente. Si el problema persiste, contacte al soporte."
-                : "API quota exceeded. Please wait a few minutes before trying again. If the problem persists, please contact support.",
-            errorCode: "RATE_LIMIT_EXCEEDED",
+                ? "El servicio está temporalmente sobrecargado. Por favor, espere un momento e inténtelo de nuevo. Si el problema persiste, contacte al soporte."
+                : "The service is temporarily overloaded. Please wait a moment and try again. If the problem persists, please contact support.",
+            errorCode: "SERVICE_OVERLOADED",
           },
-          { status: 429 }
+          { status: 503 }
         );
       }
       

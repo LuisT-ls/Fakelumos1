@@ -285,12 +285,18 @@ function isRateLimitError(error: any): boolean {
   
   return (
     errorMessage.includes("429") ||
+    errorMessage.includes("503") ||
     errorMessage.includes("RATE_LIMIT_EXCEEDED") ||
     errorMessage.includes("Quota exceeded") ||
     errorMessage.includes("Too Many Requests") ||
+    errorMessage.includes("Service Unavailable") ||
+    errorMessage.includes("high demand") ||
     errorString.includes("429") ||
+    errorString.includes("503") ||
     errorString.includes("RATE_LIMIT_EXCEEDED") ||
-    errorString.includes("Quota exceeded")
+    errorString.includes("Quota exceeded") ||
+    errorString.includes("Service Unavailable") ||
+    errorString.includes("high demand")
   );
 }
 
@@ -316,11 +322,11 @@ async function checkWithGemini(
     // Ordem: modelos mais leves primeiro (mais quota), depois modelos mais pesados
     // Modelos estáveis têm prioridade sobre previews
     const modelsToTry = [
-      "gemini-2.5-flash",        // Modelo estável mais leve (recomendado para produção)
-      "gemini-2.0-flash-lite",   // Modelo leve de segunda geração
-      "gemini-3-flash-preview",   // Preview do modelo mais recente e equilibrado
-      "gemini-2.5-pro",          // Modelo estável mais pesado (confirmado disponível, mas com rate limit)
-      "gemini-3-pro-preview",    // Preview do modelo mais inteligente
+      "gemini-3-flash-preview",  // Preview do modelo mais recente e equilibrado (testando)
+      "gemini-2.5-flash",        // Modelo estável mais leve (fallback 1)
+      "gemini-2.0-flash-lite",   // Modelo leve de segunda geração (fallback 2)
+      "gemini-2.5-pro",          // Modelo estável mais pesado (fallback 3)
+      "gemini-3-pro-preview",    // Preview do modelo mais inteligente (fallback 4)
     ];
     console.log(`[${logId}] Modelos para tentar:`, modelsToTry.join(", "));
     
@@ -563,16 +569,22 @@ async function generateContentWithModel(
     
     const isRateLimit = 
       errorMessage.includes("429") ||
+      errorMessage.includes("503") ||
       errorMessage.includes("RATE_LIMIT_EXCEEDED") ||
       errorMessage.includes("Quota exceeded") ||
       errorMessage.includes("Too Many Requests") ||
+      errorMessage.includes("Service Unavailable") ||
+      errorMessage.includes("high demand") ||
       errorString.includes("429") ||
+      errorString.includes("503") ||
       errorString.includes("RATE_LIMIT_EXCEEDED") ||
-      errorString.includes("Quota exceeded");
+      errorString.includes("Quota exceeded") ||
+      errorString.includes("Service Unavailable") ||
+      errorString.includes("high demand");
     
     if (isRateLimit) {
-      console.warn(`[${localLogId}] ⚠️ RATE LIMIT detectado - propagando erro`);
-      throw new Error("RATE_LIMIT_EXCEEDED: A quota da API foi excedida. Por favor, aguarde alguns minutos antes de tentar novamente.");
+      console.warn(`[${localLogId}] ⚠️ SOBRECARGA/RATE LIMIT detectado - propagando erro`);
+      throw new Error("RATE_LIMIT_EXCEEDED: O modelo está temporariamente sobrecarregado. Por favor, aguarde alguns instantes antes de tentar novamente.");
     }
     
     console.error(`[${localLogId}] Erro não é rate limit - propagando erro original`);
