@@ -47,7 +47,7 @@ Detector de Fake News utilizando Next.js, Tailwind CSS e Google Gemini AI.
 ### 1. Clone o repositório
 
 ```bash
-git clone <seu-repositorio>
+git clone <https://github.com/LuisT-ls/Fakelumos1>
 cd Fakelumos1
 ```
 
