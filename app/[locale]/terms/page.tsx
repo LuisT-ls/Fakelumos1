@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import { useTranslations } from "next-intl";
 import { TermsContent } from "./terms-content";
 
 export async function generateMetadata({

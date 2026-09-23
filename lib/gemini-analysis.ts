@@ -1,10 +1,19 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, type GenerativeModel } from "@google/generative-ai";
 import { searchGoogleCustom, type GoogleSearchResult } from "./google-search";
+import { isRecentContent } from "./recent-content";
+
+const DEBUG_GEMINI_LOGS = process.env.DEBUG_GEMINI_LOGS === "true";
+
+function debugLog(...args: unknown[]) {
+  if (DEBUG_GEMINI_LOGS) {
+    console.log(...args);
+  }
+}
 
 function getGenAI() {
-  const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+  const API_KEY = process.env.GEMINI_API_KEY;
   if (!API_KEY) {
-    throw new Error("NEXT_PUBLIC_GEMINI_API_KEY não está definida");
+    throw new Error("GEMINI_API_KEY não está definida");
   }
   // Usando a API v1 (padrão) em vez de v1beta para ter acesso a mais modelos
   return new GoogleGenerativeAI(API_KEY);
@@ -44,30 +53,6 @@ export interface VerificationResult {
   overallScore: number;
   realtimeSource?: string;
   realtimeData?: GoogleSearchResult[];
-}
-
-/**
- * Detecta se a pergunta envolve fatos muito recentes (últimas semanas/meses)
- * Nota: O Gemini agora tem aprendizado contínuo e pode processar informações atualizadas.
- * Esta função é usada para complementar com Google Search quando necessário.
- */
-function isPerguntaPos2022(text: string): boolean {
-  const regexAno = /\b(202[3-9]|20[3-9][0-9]|21[0-9][0-9])\b/;
-  const palavrasChave = [
-    "atualmente",
-    "hoje",
-    "neste ano",
-    "últimas notícias",
-    "recente",
-    "agora",
-    "nas últimas semanas",
-    "nas últimas horas",
-  ];
-
-  if (regexAno.test(text.toLowerCase())) return true;
-  if (palavrasChave.some((palavra) => text.toLowerCase().includes(palavra)))
-    return true;
-  return false;
 }
 
 /**
@@ -176,8 +161,6 @@ function ajustarGeminiComFontes(
   // Extrai possíveis nomes
   const nomesPossiveis =
     textoOriginal.match(/[A-Z][a-z]+\s[A-Z][a-z]+/g) || [];
-  const textoLower = textoOriginal.toLowerCase();
-
   // Busca confirmação criteriosa
   const fonteConfirma = googleResults.find((item) => {
     const titulo = item.title.toLowerCase();
@@ -274,12 +257,12 @@ function delay(ms: number): Promise<void> {
 /**
  * Detecta se o erro é rate limiting
  */
-function isRateLimitError(error: any): boolean {
+function isRateLimitError(error: unknown): boolean {
   const errorMessage = error instanceof Error ? error.message : String(error);
   let errorString = "";
   try {
     errorString = JSON.stringify(error);
-  } catch (e) {
+  } catch {
     errorString = String(error);
   }
   
@@ -300,6 +283,65 @@ function isRateLimitError(error: any): boolean {
   );
 }
 
+const VALID_CLASSIFICATIONS: GeminiAnalysisResult["classificacao"][] = [
+  "Comprovadamente Verdadeiro",
+  "Parcialmente Verdadeiro",
+  "Não Verificável",
+  "Provavelmente Falso",
+  "Comprovadamente Falso",
+];
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function toStringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string").slice(0, 50)
+    : [];
+}
+
+function toScore(value: unknown, fallback: number): number {
+  const score = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(score) ? Math.min(1, Math.max(0, score)) : fallback;
+}
+
+function normalizeGeminiAnalysis(value: unknown): GeminiAnalysisResult {
+  const parsed = isRecord(value) ? value : {};
+  const score = toScore(parsed.score, 0.5);
+  const classification = VALID_CLASSIFICATIONS.includes(
+    parsed.classificacao as GeminiAnalysisResult["classificacao"]
+  )
+    ? (parsed.classificacao as GeminiAnalysisResult["classificacao"])
+    : "Não Verificável";
+  const temporal = isRecord(parsed.limitacao_temporal)
+    ? parsed.limitacao_temporal
+    : {};
+
+  return {
+    score,
+    confiabilidade: toScore(parsed.confiabilidade, score),
+    classificacao: classification,
+    explicacao_score:
+      typeof parsed.explicacao_score === "string" ? parsed.explicacao_score : "",
+    elementos_verdadeiros: toStringArray(parsed.elementos_verdadeiros),
+    elementos_falsos: toStringArray(parsed.elementos_falsos),
+    elementos_suspeitos: toStringArray(parsed.elementos_suspeitos),
+    fontes_confiaveis: toStringArray(parsed.fontes_confiaveis),
+    indicadores_desinformacao: toStringArray(parsed.indicadores_desinformacao),
+    analise_detalhada:
+      typeof parsed.analise_detalhada === "string" ? parsed.analise_detalhada : "",
+    recomendacoes: toStringArray(parsed.recomendacoes),
+    limitacao_temporal: {
+      afeta_analise: temporal.afeta_analise === true,
+      elementos_nao_verificaveis: toStringArray(
+        temporal.elementos_nao_verificaveis
+      ),
+      sugestoes_verificacao: toStringArray(temporal.sugestoes_verificacao),
+    },
+  };
+}
+
 /**
  * Realiza verificação com Gemini com retry e fallback
  */
@@ -309,13 +351,13 @@ async function checkWithGemini(
   requestId?: number
 ): Promise<GeminiAnalysisResult> {
   const logId = requestId ? `checkWithGemini-${requestId}` : `checkWithGemini-${Date.now()}`;
-  console.log(`[${logId}] === INICIANDO checkWithGemini ===`);
-  console.log(`[${logId}] Locale:`, locale);
-  console.log(`[${logId}] Tamanho do texto:`, text.length);
+  debugLog(`[${logId}] === INICIANDO checkWithGemini ===`);
+  debugLog(`[${logId}] Locale:`, locale);
+  debugLog(`[${logId}] Tamanho do texto:`, text.length);
   
   try {
     const genAI = getGenAI();
-    console.log(`[${logId}] Instância do Gemini AI criada com sucesso`);
+    debugLog(`[${logId}] Instância do Gemini AI criada com sucesso`);
     
     // Lista de modelos para tentar em ordem de preferência
     // Baseado na documentação oficial: https://ai.google.dev/gemini-api/docs/models?hl=pt-br
@@ -328,7 +370,7 @@ async function checkWithGemini(
       "gemini-2.5-pro",          // Modelo estável mais pesado (fallback 3)
       "gemini-3-pro-preview",    // Preview do modelo mais inteligente (fallback 4)
     ];
-    console.log(`[${logId}] Modelos para tentar:`, modelsToTry.join(", "));
+    debugLog(`[${logId}] Modelos para tentar:`, modelsToTry.join(", "));
     
     let lastError: Error | null = null;
     let rateLimitCount = 0;
@@ -337,7 +379,7 @@ async function checkWithGemini(
     const rateLimitMaxRetries = 1; // Apenas 1 tentativa para rate limit (tenta próximo modelo imediatamente)
     
     for (const modelName of modelsToTry) {
-      console.log(`[${logId}] Tentando modelo: ${modelName}`);
+      debugLog(`[${logId}] Tentando modelo: ${modelName}`);
       
       // Tenta até maxRetries vezes com backoff exponencial
       for (let attempt = 0; attempt < maxRetries; attempt++) {
@@ -345,25 +387,25 @@ async function checkWithGemini(
           const model = genAI.getGenerativeModel({ 
             model: modelName 
           });
-          console.log(`[${logId}] Modelo ${modelName} instanciado (tentativa ${attempt + 1}/${maxRetries})`);
+          debugLog(`[${logId}] Modelo ${modelName} instanciado (tentativa ${attempt + 1}/${maxRetries})`);
           
           // Se não é a primeira tentativa, aguarda antes de tentar novamente
           if (attempt > 0) {
             const delayMs = baseDelay * Math.pow(2, attempt - 1); // Backoff exponencial: 2s, 4s, 8s
-            console.log(`[${logId}] Aguardando ${delayMs}ms antes de retry...`);
+            debugLog(`[${logId}] Aguardando ${delayMs}ms antes de retry...`);
             await delay(delayMs);
           }
           
           // Tenta gerar conteúdo com este modelo
           const result = await generateContentWithModel(model, text, locale, logId);
-          console.log(`[${logId}] ✅ Sucesso com modelo ${modelName} na tentativa ${attempt + 1}`);
+          debugLog(`[${logId}] ✅ Sucesso com modelo ${modelName} na tentativa ${attempt + 1}`);
           return result;
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
-          const errorString = JSON.stringify(error);
-          
-          console.error(`[${logId}] ❌ Erro ao usar modelo ${modelName} (tentativa ${attempt + 1}):`);
-          console.error(`[${logId}] Mensagem:`, errorMessage);
+          console.error(`[${logId}] Falha ao usar o modelo ${modelName} (tentativa ${attempt + 1})`);
+          if (DEBUG_GEMINI_LOGS) {
+            console.error(`[${logId}] Detalhe:`, errorMessage);
+          }
           
           // Detecta erro de rate limiting
           const isRateLimit = isRateLimitError(error);
@@ -407,7 +449,7 @@ async function checkWithGemini(
     }
     
     // Se todos os modelos falharam, lança o último erro
-    console.error(`[${logId}] ❌ Todos os modelos falharam após ${rateLimitCount} rate limits`);
+    console.error(`[${logId}] Todos os modelos falharam após ${rateLimitCount} rate limits`);
     
     if (lastError && isRateLimitError(lastError)) {
       throw new Error("RATE_LIMIT_EXCEEDED: A quota da API foi excedida para todos os modelos. Por favor, aguarde alguns minutos antes de tentar novamente.");
@@ -415,8 +457,10 @@ async function checkWithGemini(
     
     throw lastError || new Error("Nenhum modelo disponível");
   } catch (error) {
-    console.error(`[${logId}] === ERRO FINAL EM checkWithGemini ===`);
-    console.error(`[${logId}] Erro:`, error);
+    console.error(`[${logId}] Erro final na verificação com Gemini`);
+    if (DEBUG_GEMINI_LOGS) {
+      console.error(`[${logId}] Detalhe:`, error instanceof Error ? error.message : String(error));
+    }
     throw error;
   }
 }
@@ -425,13 +469,13 @@ async function checkWithGemini(
  * Função auxiliar para gerar conteúdo com um modelo específico
  */
 async function generateContentWithModel(
-  model: any,
+  model: GenerativeModel,
   text: string,
   locale: string,
   logId?: string
 ): Promise<GeminiAnalysisResult> {
   const localLogId = logId || `generateContent-${Date.now()}`;
-  console.log(`[${localLogId}] === INICIANDO generateContentWithModel ===`);
+  debugLog(`[${localLogId}] === INICIANDO generateContentWithModel ===`);
 
   const currentDate = new Date();
   const promptLang =
@@ -473,18 +517,18 @@ async function generateContentWithModel(
     como informações muito específicas ou não documentadas. Para eventos recentes, use sua base de conhecimento atualizada.`;
 
   try {
-    console.log(`[${localLogId}] Enviando requisição para o modelo...`);
-    console.log(`[${localLogId}] Tamanho do prompt:`, prompt.length);
+    debugLog(`[${localLogId}] Enviando requisição para o modelo...`);
+    debugLog(`[${localLogId}] Tamanho do prompt:`, prompt.length);
     
     const startTime = Date.now();
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const elapsedTime = Date.now() - startTime;
     
-    console.log(`[${localLogId}] Resposta recebida em ${elapsedTime}ms`);
+    debugLog(`[${localLogId}] Resposta recebida em ${elapsedTime}ms`);
     
     const rawText = response.text().trim();
-    console.log(`[${localLogId}] Tamanho da resposta:`, rawText.length);
+    debugLog(`[${localLogId}] Tamanho da resposta:`, rawText.length);
 
     if (!rawText) {
       console.error("Resposta vazia da API Gemini");
@@ -495,76 +539,37 @@ async function generateContentWithModel(
     const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
 
     if (!jsonMatch) {
-      console.error("JSON não encontrado. Texto recebido:", cleanText.substring(0, 200));
+      console.error("JSON não encontrado na resposta do Gemini");
       throw new Error("JSON não encontrado na resposta");
     }
 
-    let parsed: GeminiAnalysisResult;
+    let parsed: unknown;
     try {
-      parsed = JSON.parse(jsonMatch[0]) as GeminiAnalysisResult;
+      parsed = JSON.parse(jsonMatch[0]);
     } catch (parseError) {
-      console.error("Erro ao fazer parse do JSON:", parseError);
-      console.error("JSON recebido:", jsonMatch[0].substring(0, 500));
+      console.error("Erro ao processar o JSON retornado pelo Gemini");
+      if (DEBUG_GEMINI_LOGS) {
+        console.error("Detalhe do parse:", parseError instanceof Error ? parseError.message : String(parseError));
+      }
       throw new Error("Erro ao processar a resposta da API");
     }
 
-    return {
-      score: parsed.score ?? 0.5,
-      confiabilidade: parsed.confiabilidade ?? parsed.score ?? 0.5,
-      classificacao: parsed.classificacao ?? "Não Verificável",
-      explicacao_score: parsed.explicacao_score ?? "",
-      elementos_verdadeiros: parsed.elementos_verdadeiros ?? [],
-      elementos_falsos: parsed.elementos_falsos ?? [],
-      elementos_suspeitos: parsed.elementos_suspeitos ?? [],
-      fontes_confiaveis: parsed.fontes_confiaveis ?? [],
-      indicadores_desinformacao: parsed.indicadores_desinformacao ?? [],
-      analise_detalhada: parsed.analise_detalhada ?? "",
-      recomendacoes: parsed.recomendacoes ?? [],
-      limitacao_temporal: parsed.limitacao_temporal ?? {
-        afeta_analise: false,
-        elementos_nao_verificaveis: [],
-        sugestoes_verificacao: [],
-      },
-    };
+    return normalizeGeminiAnalysis(parsed);
   } catch (error) {
-    console.error(`[${localLogId}] === ERRO EM generateContentWithModel ===`);
-    console.error(`[${localLogId}] Tipo do erro:`, error instanceof Error ? error.constructor.name : typeof error);
-    
     // Detecta erros de rate limiting (429) da API do Gemini
     const errorMessage = error instanceof Error ? error.message : String(error);
     let errorString = "";
     
     try {
       errorString = JSON.stringify(error);
-    } catch (e) {
+    } catch {
       errorString = String(error);
     }
     
-    console.error(`[${localLogId}] Mensagem de erro:`, errorMessage);
-    console.error(`[${localLogId}] Erro serializado:`, errorString);
-    
-    if (error instanceof Error) {
-      console.error(`[${localLogId}] Stack trace:`, error.stack);
-      console.error(`[${localLogId}] Nome do erro:`, error.name);
-    }
-    
-    // Log completo do objeto de erro se possível
-    if (error && typeof error === 'object') {
-      try {
-        const errorObj = error as any;
-        console.error(`[${localLogId}] Propriedades do erro:`, Object.keys(errorObj));
-        if (errorObj.cause) {
-          console.error(`[${localLogId}] Causa do erro:`, errorObj.cause);
-        }
-        if (errorObj.response) {
-          console.error(`[${localLogId}] Resposta HTTP:`, errorObj.response);
-        }
-        if (errorObj.status) {
-          console.error(`[${localLogId}] Status HTTP:`, errorObj.status);
-        }
-      } catch (e) {
-        console.error(`[${localLogId}] Erro ao inspecionar objeto de erro:`, e);
-      }
+    console.error(`[${localLogId}] Falha ao processar a chamada ao Gemini`);
+    if (DEBUG_GEMINI_LOGS) {
+      console.error(`[${localLogId}] Tipo:`, error instanceof Error ? error.constructor.name : typeof error);
+      console.error(`[${localLogId}] Detalhe:`, errorMessage);
     }
     
     const isRateLimit = 
@@ -587,7 +592,7 @@ async function generateContentWithModel(
       throw new Error("RATE_LIMIT_EXCEEDED: O modelo está temporariamente sobrecarregado. Por favor, aguarde alguns instantes antes de tentar novamente.");
     }
     
-    console.error(`[${localLogId}] Erro não é rate limit - propagando erro original`);
+    console.error(`[${localLogId}] Erro não relacionado a limite de uso`);
     // Propaga outros erros
     throw error;
   }
@@ -602,40 +607,39 @@ export async function handleVerification(
   requestId?: number
 ): Promise<VerificationResult> {
   const logId = requestId ? `handleVerification-${requestId}` : `handleVerification-${Date.now()}`;
-  console.log(`[${logId}] === INICIANDO handleVerification ===`);
-  console.log(`[${logId}] Locale:`, locale);
-  console.log(`[${logId}] Tamanho do texto original:`, text.length);
+  debugLog(`[${logId}] === INICIANDO handleVerification ===`);
+  debugLog(`[${logId}] Locale:`, locale);
+  debugLog(`[${logId}] Tamanho do texto original:`, text.length);
   
   const sanitizedText = text.trim();
-  console.log(`[${logId}] Texto sanitizado (primeiros 100 chars):`, sanitizedText.substring(0, 100));
 
   let verification: VerificationResult;
 
-  const isPost2022 = isPerguntaPos2022(sanitizedText);
-  console.log(`[${logId}] É pergunta pós-2022:`, isPost2022);
+  const isPost2022 = isRecentContent(sanitizedText);
+  debugLog(`[${logId}] É pergunta pós-2022:`, isPost2022);
 
   try {
     if (isPost2022) {
-      console.log(`[${logId}] Fluxo: Conteúdo recente detectado - usando Gemini + Google Search para complementar`);
+      debugLog(`[${logId}] Fluxo: Conteúdo recente detectado - usando Gemini + Google Search para complementar`);
       
       // 1. Analisa com Gemini
-      console.log(`[${logId}] Passo 1: Analisando com Gemini...`);
+      debugLog(`[${logId}] Passo 1: Analisando com Gemini...`);
       let geminiResult = await checkWithGemini(sanitizedText, locale, requestId);
-      console.log(`[${logId}] Gemini análise concluída. Score:`, geminiResult.score);
+      debugLog(`[${logId}] Gemini análise concluída. Score:`, geminiResult.score);
 
       // 2. Complementa com busca Google
-      console.log(`[${logId}] Passo 2: Buscando no Google...`);
+      debugLog(`[${logId}] Passo 2: Buscando no Google...`);
       const googleResults = await searchGoogleCustom(sanitizedText);
-      console.log(`[${logId}] Google Search retornou ${googleResults.length} resultados`);
+      debugLog(`[${logId}] Google Search retornou ${googleResults.length} resultados`);
 
       // 3. Ajusta Gemini se fontes confirmarem
-      console.log(`[${logId}] Passo 3: Ajustando resultado com fontes do Google...`);
+      debugLog(`[${logId}] Passo 3: Ajustando resultado com fontes do Google...`);
       geminiResult = ajustarGeminiComFontes(
         geminiResult,
         googleResults,
         sanitizedText
       );
-      console.log(`[${logId}] Resultado ajustado. Score final:`, geminiResult.score);
+      debugLog(`[${logId}] Resultado ajustado. Score final:`, geminiResult.score);
 
       verification = {
         id: Date.now(),
@@ -649,11 +653,11 @@ export async function handleVerification(
         realtimeData: googleResults,
       };
     } else {
-      console.log(`[${logId}] Fluxo: Padrão - usando apenas Gemini`);
+      debugLog(`[${logId}] Fluxo: Padrão - usando apenas Gemini`);
       
       // Fluxo padrão Gemini
       const geminiResult = await checkWithGemini(sanitizedText, locale, requestId);
-      console.log(`[${logId}] Gemini análise concluída. Score:`, geminiResult.score);
+      debugLog(`[${logId}] Gemini análise concluída. Score:`, geminiResult.score);
 
       verification = {
         id: Date.now(),
@@ -666,15 +670,17 @@ export async function handleVerification(
       };
     }
 
-    console.log(`[${logId}] ✅ Verificação concluída com sucesso`);
-    console.log(`[${logId}] ID da verificação:`, verification.id);
-    console.log(`[${logId}] Score final:`, verification.overallScore);
-    console.log(`[${logId}] Classificação:`, verification.geminiAnalysis.classificacao);
+    debugLog(`[${logId}] ✅ Verificação concluída com sucesso`);
+    debugLog(`[${logId}] ID da verificação:`, verification.id);
+    debugLog(`[${logId}] Score final:`, verification.overallScore);
+    debugLog(`[${logId}] Classificação:`, verification.geminiAnalysis.classificacao);
 
     return verification;
   } catch (error) {
-    console.error(`[${logId}] === ERRO EM handleVerification ===`);
-    console.error(`[${logId}] Erro:`, error);
+    console.error(`[${logId}] Erro ao concluir a verificação`);
+    if (DEBUG_GEMINI_LOGS) {
+      console.error(`[${logId}] Detalhe:`, error instanceof Error ? error.message : String(error));
+    }
     throw error;
   }
 }

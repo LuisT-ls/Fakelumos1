@@ -1,26 +1,81 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleVerification } from "@/lib/gemini-analysis";
 import { validateUserInput } from "@/lib/validation";
+import { checkRateLimit } from "@/lib/rate-limit";
+
+const SUPPORTED_LOCALES = new Set(["pt-BR", "en", "es"]);
+
+function isAllowedOrigin(request: NextRequest): boolean {
+  const origin = request.headers.get("origin");
+  if (!origin) return true;
+
+  const requestOrigin = `${request.nextUrl.protocol}//${request.nextUrl.host}`;
+  const configuredOrigins = (process.env.APP_ORIGINS || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  return origin === requestOrigin || configuredOrigins.includes(origin);
+}
+
+function getClientIdentifier(request: NextRequest): string {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  return (
+    forwardedFor?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
 
 export async function POST(request: NextRequest) {
   let locale = "pt-BR";
   const requestId = Date.now();
-  
-  console.log(`[${requestId}] === INÍCIO DA REQUISIÇÃO ===`);
-  console.log(`[${requestId}] Timestamp:`, new Date().toISOString());
-  
-  try {
-    const body = await request.json();
-    const { content, locale: bodyLocale } = body;
-    locale = bodyLocale || "pt-BR";
 
-    console.log(`[${requestId}] Locale:`, locale);
-    console.log(`[${requestId}] Tamanho do conteúdo:`, content?.length || 0);
+  try {
+    if (!isAllowedOrigin(request)) {
+      return NextResponse.json(
+        { error: "Origem não autorizada", errorCode: "ORIGIN_NOT_ALLOWED" },
+        { status: 403 }
+      );
+    }
+
+    const body: unknown = await request.json();
+    if (!body || typeof body !== "object") {
+      return NextResponse.json(
+        { error: "Corpo da requisição inválido", errorCode: "INVALID_REQUEST" },
+        { status: 400 }
+      );
+    }
+
+    const { content, locale: bodyLocale } = body as {
+      content?: unknown;
+      locale?: unknown;
+    };
+    const requestedLocale = typeof bodyLocale === "string" ? bodyLocale : "pt-BR";
+    locale = SUPPORTED_LOCALES.has(requestedLocale) ? requestedLocale : "pt-BR";
+
+    const rateLimit = checkRateLimit(getClientIdentifier(request));
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          error:
+            locale === "pt-BR"
+              ? "Muitas tentativas. Aguarde um momento antes de tentar novamente."
+              : locale === "es"
+              ? "Demasiados intentos. Espere un momento antes de intentarlo de nuevo."
+              : "Too many attempts. Please wait a moment before trying again.",
+          errorCode: "RATE_LIMIT_EXCEEDED",
+        },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
+        }
+      );
+    }
 
     if (!content || typeof content !== "string") {
-      console.log(`[${requestId}] Erro: Conteúdo inválido ou vazio`);
       return NextResponse.json(
-        { error: "Conteúdo da notícia é obrigatório" },
+        { error: "Conteúdo da notícia é obrigatório", errorCode: "INVALID_CONTENT" },
         { status: 400 }
       );
     }
@@ -28,9 +83,11 @@ export async function POST(request: NextRequest) {
     // Valida entrada do usuário
     const validation = validateUserInput(content);
     if (!validation.isValid) {
-      console.log(`[${requestId}] Erro de validação:`, validation.errors);
       return NextResponse.json(
-        { error: validation.errors[0] || "Entrada inválida" },
+        {
+          error: validation.errors[0] || "Entrada inválida",
+          errorCode: "INVALID_CONTENT",
+        },
         { status: 400 }
       );
     }
@@ -38,23 +95,20 @@ export async function POST(request: NextRequest) {
     // Log de segurança se flags foram detectadas
     if (validation.securityFlags && validation.securityFlags.length > 0) {
       console.warn(`[${requestId}] ⚠️ FLAGS DE SEGURANÇA DETECTADAS:`, validation.securityFlags);
-      console.warn(`[${requestId}] Tamanho original: ${content.length}, Tamanho após sanitização: ${validation.sanitizedText.length}`);
     }
 
     // Verifica se a API key está configurada
-    const apiKeyExists = !!process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-    console.log(`[${requestId}] API Key configurada:`, apiKeyExists ? "Sim" : "Não");
+    const apiKeyExists = !!process.env.GEMINI_API_KEY;
     
     if (!apiKeyExists) {
-      console.error(`[${requestId}] ERRO: NEXT_PUBLIC_GEMINI_API_KEY não está definida`);
       return NextResponse.json(
-        { error: "Configuração da API não encontrada. Por favor, entre em contato com o suporte." },
+        {
+          error: "Configuração da API não encontrada. Por favor, entre em contato com o suporte.",
+          errorCode: "CONFIGURATION_ERROR",
+        },
         { status: 500 }
       );
     }
-
-    console.log(`[${requestId}] Iniciando verificação com Gemini...`);
-    console.log(`[${requestId}] Texto sanitizado (primeiros 100 chars):`, validation.sanitizedText.substring(0, 100));
 
     const result = await handleVerification(
       validation.sanitizedText,
@@ -62,77 +116,39 @@ export async function POST(request: NextRequest) {
       requestId
     );
 
-    console.log(`[${requestId}] Verificação concluída com sucesso`);
-    console.log(`[${requestId}] Score:`, result.overallScore);
-    console.log(`[${requestId}] Classificação:`, result.geminiAnalysis.classificacao);
-
     return NextResponse.json(result);
   } catch (error) {
-    console.error(`[${requestId}] === ERRO CAPTURADO ===`);
-    console.error(`[${requestId}] Tipo do erro:`, error instanceof Error ? "Error" : typeof error);
-    
-    // Log detalhado do erro para debug
-    if (error instanceof Error) {
-      console.error(`[${requestId}] Mensagem de erro:`, error.message);
-      console.error(`[${requestId}] Stack trace:`, error.stack);
-      console.error(`[${requestId}] Nome do erro:`, error.name);
-      
-      // Log completo do objeto de erro
-      try {
-        const errorDetails = {
-          message: error.message,
-          name: error.name,
-          stack: error.stack,
-          toString: error.toString(),
-        };
-        console.error(`[${requestId}] Detalhes completos do erro:`, JSON.stringify(errorDetails, null, 2));
-      } catch (e) {
-        console.error(`[${requestId}] Erro ao serializar detalhes:`, e);
-      }
-      
-      // Tratamento específico para rate limiting e sobrecarga
-      const isRateLimit = 
-        error.message.includes("RATE_LIMIT_EXCEEDED") ||
-        error.message.includes("429") ||
-        error.message.includes("503") ||
-        error.message.includes("Quota exceeded") ||
-        error.message.includes("Too Many Requests") ||
-        error.message.includes("Service Unavailable") ||
-        error.message.includes("high demand");
-      
-      if (isRateLimit) {
-        console.warn(`[${requestId}] ⚠️ SOBRECARGA/RATE LIMIT DETECTADO`);
-        console.warn(`[${requestId}] Mensagem original:`, error.message);
-        return NextResponse.json(
-          {
-            error:
-              locale === "pt-BR"
-                ? "O serviço está temporariamente sobrecarregado. Por favor, aguarde alguns instantes e tente novamente. Se o problema persistir, entre em contato com o suporte."
-                : locale === "es"
-                ? "El servicio está temporalmente sobrecargado. Por favor, espere un momento e inténtelo de nuevo. Si el problema persiste, contacte al soporte."
-                : "The service is temporarily overloaded. Please wait a moment and try again. If the problem persists, please contact support.",
-            errorCode: "SERVICE_OVERLOADED",
-          },
-          { status: 503 }
-        );
-      }
-      
-      // Para outros erros, loga normalmente
-      console.error(`[${requestId}] ❌ ERRO NÃO É RATE LIMIT`);
-    } else {
-      console.error(`[${requestId}] Erro não é instância de Error:`, error);
-      console.error(`[${requestId}] Tipo:`, typeof error);
-      console.error(`[${requestId}] Valor:`, JSON.stringify(error, null, 2));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isRateLimit = /429|503|RATE_LIMIT_EXCEEDED|Quota exceeded|Too Many Requests|Service Unavailable|high demand/i.test(
+      errorMessage
+    );
+
+    if (isRateLimit) {
+      return NextResponse.json(
+        {
+          error:
+            locale === "pt-BR"
+              ? "O serviço está temporariamente sobrecarregado. Aguarde alguns instantes e tente novamente."
+              : locale === "es"
+              ? "El servicio está temporalmente sobrecargado. Espere unos instantes e inténtelo de nuevo."
+              : "The service is temporarily overloaded. Please wait a moment and try again.",
+          errorCode: "RATE_LIMIT_EXCEEDED",
+        },
+        { status: 429 }
+      );
     }
-    
-    console.error(`[${requestId}] === FIM DO LOG DE ERRO ===`);
+
+    console.error(`[${requestId}] Falha na verificação`);
 
     return NextResponse.json(
       {
         error:
-          error instanceof Error
-            ? error.message
-            : "Erro ao processar a verificação. Tente novamente mais tarde.",
+          locale === "pt-BR"
+            ? "Não foi possível processar a verificação. Tente novamente mais tarde."
+            : locale === "es"
+            ? "No fue posible procesar la verificación. Inténtelo de nuevo más tarde."
+            : "The verification could not be processed. Please try again later.",
+        errorCode: "VERIFICATION_FAILED",
       },
       { status: 500 }
     );

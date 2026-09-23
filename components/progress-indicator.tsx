@@ -142,8 +142,6 @@ export function ProgressIndicator({ isActive, hasRealtimeSearch = false }: Progr
         {steps.map((step, index) => {
           const isActiveStep = step.key === currentStep;
           const isCompleted = steps.findIndex((s) => s.key === currentStep) > index;
-          const isPending = steps.findIndex((s) => s.key === currentStep) < index;
-
           return (
             <div
               key={step.key}

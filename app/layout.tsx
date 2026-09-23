@@ -1,13 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
-
-const inter = Inter({ 
-  subsets: ["latin"],
-  display: "swap",
-  preload: false, // Desabilita preload para evitar avisos do navegador
-  adjustFontFallback: true,
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://fakelumos.vercel.app'),
@@ -110,7 +102,7 @@ export default function RootLayout({
 }) {
   return (
     <html suppressHydrationWarning>
-      <body className={inter.className} suppressHydrationWarning>{children}</body>
+      <body className="font-sans" suppressHydrationWarning>{children}</body>
     </html>
   );
 }

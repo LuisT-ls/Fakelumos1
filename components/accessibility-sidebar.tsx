@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { X, RotateCcw, Keyboard } from "lucide-react";
-import { useAccessibility } from "./accessibility-provider";
+import { useAccessibility, type ContrastMode, type TextSpacing } from "./accessibility-provider";
 import { useEffect, useState, useRef } from "react";
 
 interface AccessibilitySidebarProps {
@@ -180,7 +180,7 @@ export function AccessibilitySidebar({
                     <button
                       key={option.value}
                       type="button"
-                      onClick={() => setContrastMode(option.value as any)}
+                      onClick={() => setContrastMode(option.value as ContrastMode)}
                       className={`rounded-md border px-3 py-2 text-sm transition-colors ${
                         contrastMode === option.value
                           ? "border-primary bg-primary text-primary-foreground"
@@ -237,7 +237,7 @@ export function AccessibilitySidebar({
                     <button
                       key={option.value}
                       type="button"
-                      onClick={() => setTextSpacing(option.value as any)}
+                      onClick={() => setTextSpacing(option.value as TextSpacing)}
                       className={`flex-1 rounded-md border px-3 py-2 text-sm transition-colors ${
                         textSpacing === option.value
                           ? "border-primary bg-primary text-primary-foreground"

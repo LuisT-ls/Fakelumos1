@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Target, Eye, History, Code, Brain, Rocket, Users, Linkedin, Github, CheckCircle2, Cpu, Database, Globe, Shield, Zap } from "lucide-react";
+import { Target, Eye, History, Code, Brain, Rocket, Users, Linkedin, Github, CheckCircle2, Cpu, Database, Globe, Shield } from "lucide-react";
 import Image from "next/image";
 
 export function AboutContent() {

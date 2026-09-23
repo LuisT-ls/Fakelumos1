@@ -8,6 +8,7 @@ import { VerificationResultDisplay } from "./verification-result";
 import { ProgressIndicator } from "./progress-indicator";
 import { useTutorialTarget } from "./tutorial-overlay";
 import type { VerificationResult } from "@/lib/gemini-analysis";
+import { isRecentContent } from "@/lib/recent-content";
 
 export function NewsVerifier() {
   const t = useTranslations();
@@ -31,30 +32,11 @@ export function NewsVerifier() {
       return;
     }
 
-    // Detectar se precisa de busca em tempo real (mesma lógica do backend)
-    const isPost2022 = (text: string): boolean => {
-      const regexAno = /\b(202[3-9]|20[3-9][0-9]|21[0-9][0-9])\b/;
-      const palavrasChave = [
-        "atualmente",
-        "hoje",
-        "neste ano",
-        "últimas notícias",
-        "recente",
-        "agora",
-        "nas últimas semanas",
-        "nas últimas horas",
-      ];
-      if (regexAno.test(text.toLowerCase())) return true;
-      if (palavrasChave.some((palavra) => text.toLowerCase().includes(palavra)))
-        return true;
-      return false;
-    };
-
     setLoading(true);
     setError(null);
     setResult(null);
     setIsRateLimited(false);
-    setHasRealtimeSearch(isPost2022(content));
+    setHasRealtimeSearch(isRecentContent(content));
 
     try {
       const locale = window.location.pathname.split("/")[1] || "pt-BR";
@@ -70,7 +52,11 @@ export function NewsVerifier() {
         const errorData = await response.json();
         
         // Tratamento específico para rate limiting (429)
-        if (response.status === 429 || errorData.errorCode === "RATE_LIMIT_EXCEEDED") {
+        if (
+          response.status === 429 ||
+          errorData.errorCode === "RATE_LIMIT_EXCEEDED" ||
+          errorData.errorCode === "SERVICE_OVERLOADED"
+        ) {
           setIsRateLimited(true);
           // Não loga erro no console para rate limiting, pois é esperado
           throw new Error(t("hero.errorRateLimit"));
@@ -85,7 +71,14 @@ export function NewsVerifier() {
       setResult(verificationResult);
 
       // Salvar no histórico
-      const history = JSON.parse(localStorage.getItem("verificationHistory") || "[]");
+      let history: unknown[] = [];
+      try {
+        const storedHistory = localStorage.getItem("verificationHistory");
+        const parsedHistory = storedHistory ? JSON.parse(storedHistory) : [];
+        history = Array.isArray(parsedHistory) ? parsedHistory : [];
+      } catch {
+        localStorage.removeItem("verificationHistory");
+      }
       const newEntry = {
         id: verificationResult.id,
         content: verificationResult.text,

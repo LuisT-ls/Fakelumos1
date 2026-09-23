@@ -43,6 +43,21 @@
     "cancel": "Cancel",
     "confirm": "Confirm"
   },
+  "result": {
+    "reliability": "Reliability",
+    "detailedAnalysis": "Detailed Analysis",
+    "trueElements": "True Elements",
+    "falseElements": "False Elements",
+    "suspiciousElements": "Suspicious Elements",
+    "disinformationIndicators": "Disinformation Indicators",
+    "reliableSources": "Reliable Sources",
+    "temporalLimitation": "Temporal Limitation",
+    "temporalLimitationDescription": "This analysis may be affected by limitations in the knowledge base.",
+    "unverifiableElements": "Unverifiable elements",
+    "suggestions": "Suggestions",
+    "recommendations": "Recommendations",
+    "recentSources": "Recent Sources Found"
+  },
   "tips": {
     "title": "Tips to Identify Fake News",
     "verifySource": {

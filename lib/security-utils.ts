@@ -109,10 +109,10 @@ export function containsOnlySafeChars(text: string): boolean {
 export function detectEncodingEvasion(text: string): boolean {
   // Verifica múltiplas codificações do mesmo caractere perigoso
   const suspiciousPatterns = [
-    /%3Cscript/gi, // <script URL encoded
-    /&#60;script/gi, // <script HTML entity
-    /\u003Cscript/gi, // <script Unicode
-    /%3C%73%63%72%69%70%74/gi, // <script double encoded
+    /%3Cscript/i, // <script URL encoded
+    /&#60;script/i, // <script HTML entity
+    /\u003Cscript/i, // <script Unicode
+    /%3C%73%63%72%69%70%74/i, // <script double encoded
   ];
 
   return suspiciousPatterns.some((pattern) => pattern.test(text));
@@ -151,7 +151,7 @@ export function normalizeEncoding(text: string): string {
     decoder.decode(encoded);
     
     return normalized;
-  } catch (error) {
+  } catch {
     // Se falhar, tenta remover caracteres inválidos
     return text.replace(/[^\x00-\x7F]/g, "");
   }

@@ -122,3 +122,7 @@ export function useTutorial() {
   }
   return context;
 }
+
+export function useOptionalTutorial() {
+  return useContext(TutorialContext);
+}

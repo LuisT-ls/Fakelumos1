@@ -7,24 +7,17 @@ import { Moon, Sun, Accessibility, Languages, GraduationCap } from "lucide-react
 import { useRouter, usePathname } from "@/i18n/routing";
 import { useState } from "react";
 import { AccessibilitySidebar } from "./accessibility-sidebar";
-import { useTutorial, type TutorialContextType } from "./tutorial-provider";
+import { useOptionalTutorial } from "./tutorial-provider";
 
 export function Nav() {
   const t = useTranslations();
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
   const router = useRouter();
   const pathname = usePathname();
   const [showAccessibilitySidebar, setShowAccessibilitySidebar] = useState(false);
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   
-  // Tutorial hook (pode ser undefined se não estiver no contexto)
-  let tutorialContext: TutorialContextType | undefined;
-  try {
-    tutorialContext = useTutorial();
-  } catch {
-    // Não está no contexto do tutorial, tudo bem
-    tutorialContext = undefined;
-  }
+  const tutorialContext = useOptionalTutorial();
 
   const currentLocale = useLocale();
   

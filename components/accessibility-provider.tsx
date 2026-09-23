@@ -2,8 +2,8 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-type ContrastMode = "normal" | "high" | "blackYellow" | "yellowBlack";
-type TextSpacing = "normal" | "medium" | "large";
+export type ContrastMode = "normal" | "high" | "blackYellow" | "yellowBlack";
+export type TextSpacing = "normal" | "medium" | "large";
 
 interface AccessibilityContextType {
   // Contraste

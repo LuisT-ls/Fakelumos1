@@ -37,7 +37,7 @@ Detector de Fake News utilizando Next.js, Tailwind CSS e Google Gemini AI.
 
 ## 📋 Pré-requisitos
 
-- **Node.js 18+** (recomendado: Node.js 20+)
+- **Node.js 22.x**
 - **npm** ou **yarn**
 - **Chave de API do Google Gemini** (obrigatória)
 - **Google Custom Search API** (opcional, para busca em tempo real)
@@ -69,7 +69,7 @@ Edite o arquivo `.env.local` e adicione suas chaves de API:
 
 ```env
 # Obrigatório: Chave da API do Google Gemini
-NEXT_PUBLIC_GEMINI_API_KEY=sua_chave_gemini_aqui
+GEMINI_API_KEY=sua_chave_gemini_aqui
 
 # Opcional: Para busca em tempo real no Google
 GOOGLE_SEARCH_API_KEY=sua_chave_google_search_aqui
@@ -157,7 +157,7 @@ Fakelumos1/
 ├── public/                    # Arquivos estáticos
 │   ├── images/                # Imagens e favicons
 │   └── robots.txt             # Configuração de robots
-├── middleware.ts              # Middleware para i18n
+├── proxy.ts                   # Proxy de i18n do Next.js 16
 ├── vercel.json                # Configuração do Vercel
 └── package.json               # Dependências do projeto
 ```
@@ -173,16 +173,16 @@ A aplicação detecta automaticamente o idioma preferido do navegador ou permite
 ## 🎨 Tecnologias Utilizadas
 
 ### Core
-- **Next.js 16.1.1** - Framework React com App Router
-- **React 19.0.0** - Biblioteca UI
-- **TypeScript 5.7.0** - Tipagem estática
+- **Next.js 16.3.6** - Framework React com App Router
+- **React 19.2.x** - Biblioteca UI
+- **TypeScript 5.9.x** - Tipagem estática
 
 ### Estilização
-- **Tailwind CSS 3.4.17** - Framework CSS utility-first
+- **Tailwind CSS 3.4.x** - Framework CSS utility-first
 - **Lucide React 0.427.0** - Biblioteca de ícones
 
 ### Internacionalização
-- **next-intl 3.26.5** - Internacionalização para Next.js
+- **next-intl 4.14.6** - Internacionalização para Next.js
 
 ### IA e APIs
 - **@google/generative-ai 0.21.0** - SDK do Google Gemini
@@ -216,6 +216,8 @@ A aplicação detecta automaticamente o idioma preferido do navegador ou permite
 - ✅ Variáveis de ambiente para chaves de API
 - ✅ Validação server-side de todas as requisições
 
+O limite atual é uma proteção em memória por instância (5 requisições por IP a cada 60 segundos). Em produção com múltiplas instâncias, ele deve ser substituído por um armazenamento compartilhado, como Redis/Upstash, para que o limite seja consistente entre réplicas.
+
 ## ♿ Acessibilidade
 
 A aplicação segue as diretrizes WCAG 2.1 e oferece:
@@ -242,7 +244,7 @@ A aplicação está configurada para deploy na Vercel:
 
 1. Conecte seu repositório GitHub à Vercel
 2. Configure as variáveis de ambiente na Vercel:
-   - `NEXT_PUBLIC_GEMINI_API_KEY`
+   - `GEMINI_API_KEY`
    - `GOOGLE_SEARCH_API_KEY` (opcional)
    - `GOOGLE_SEARCH_ENGINE_ID` (opcional)
 3. Deploy automático a cada push
@@ -277,6 +279,13 @@ npm start            # Inicia servidor de produção
 
 # Qualidade
 npm run lint         # Executa ESLint
+npm run test:smoke   # Verifica headers e bloqueio de origem
+```
+
+Para executar o smoke test contra outro ambiente, defina `SMOKE_BASE_URL`, por exemplo:
+
+```bash
+SMOKE_BASE_URL=https://fakelumos.vercel.app npm run test:smoke
 ```
 
 ## 📝 Licença
@@ -301,7 +310,7 @@ Este é um projeto acadêmico, mas sugestões e melhorias são bem-vindas! Sinta
 
 1. **Limitações da IA**: A análise é baseada em modelos de IA e pode não ser 100% precisa. Sempre verifique informações críticas através de múltiplas fontes confiáveis.
 
-2. **Rate Limiting**: A API do Google Gemini possui limites de quota. Se você exceder o limite, aguarde alguns minutos antes de tentar novamente.
+2. **Rate Limiting**: A aplicação aplica um limite local de requisições e a API do Google Gemini também possui limites de quota. Se você exceder qualquer um deles, aguarde alguns minutos antes de tentar novamente. Para produção distribuída, configure um rate limiter com armazenamento compartilhado.
 
 3. **Notícias Recentes**: Fatos muito recentes (últimas semanas/meses) podem não ser verificáveis devido à falta de fontes confiáveis disponíveis.
 

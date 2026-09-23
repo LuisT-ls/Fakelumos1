@@ -43,6 +43,21 @@
     "cancel": "Cancelar",
     "confirm": "Confirmar"
   },
+  "result": {
+    "reliability": "Confiabilidad",
+    "detailedAnalysis": "Análisis Detallado",
+    "trueElements": "Elementos Verdaderos",
+    "falseElements": "Elementos Falsos",
+    "suspiciousElements": "Elementos Sospechosos",
+    "disinformationIndicators": "Indicadores de Desinformación",
+    "reliableSources": "Fuentes Confiables",
+    "temporalLimitation": "Limitación Temporal",
+    "temporalLimitationDescription": "Este análisis puede verse afectado por limitaciones de la base de conocimiento.",
+    "unverifiableElements": "Elementos no verificables",
+    "suggestions": "Sugerencias",
+    "recommendations": "Recomendaciones",
+    "recentSources": "Fuentes Recientes Encontradas"
+  },
   "tips": {
     "title": "Consejos para Identificar Noticias Falsas",
     "verifySource": {

@@ -63,21 +63,19 @@ export function TutorialOverlay() {
     },
   ];
 
-  if (!isTutorialActive) {
-    return null;
-  }
-
   const currentStepData = steps[currentStep];
-  if (!currentStepData) {
-    return null;
-  }
-
-  // Encontrar o elemento alvo
+  const currentStepTarget = currentStepData?.target;
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
   const [rect, setRect] = useState<DOMRect | null>(null);
 
   useEffect(() => {
-    const element = document.querySelector(`[data-tutorial="${currentStepData.target}"]`) as HTMLElement;
+    if (!isTutorialActive || !currentStepTarget) {
+      setTargetElement(null);
+      setRect(null);
+      return;
+    }
+
+    const element = document.querySelector(`[data-tutorial="${currentStepTarget}"]`) as HTMLElement | null;
     
     if (!element) {
       // Se o elemento não existir, avançar para o próximo passo após um delay
@@ -102,7 +100,16 @@ export function TutorialOverlay() {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [currentStep, currentStepData.target, totalSteps, nextStep, completeTutorial]);
+  }, [isTutorialActive, currentStep, currentStepTarget, totalSteps, nextStep, completeTutorial]);
+
+  useEffect(() => {
+    if (!isTutorialActive) return;
+    targetElement?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [isTutorialActive, currentStep, targetElement]);
+
+  if (!isTutorialActive || !currentStepData) {
+    return null;
+  }
 
   if (!targetElement || !rect) {
     return null;
@@ -149,11 +156,6 @@ export function TutorialOverlay() {
   };
 
   const tooltipPosition = getTooltipPosition();
-
-  // Scroll para o elemento se necessário
-  useEffect(() => {
-    targetElement?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, [currentStep, targetElement]);
 
   return (
     <>

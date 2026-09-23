@@ -75,14 +75,14 @@ export function VerificationResultDisplay({ result }: VerificationResultProps) {
             {t("history.confidence")}
           </div>
           <div className="mt-1 text-sm text-muted-foreground">
-            Confiabilidade: {confiabilidadePercentage}%
+            {t("result.reliability")}: {confiabilidadePercentage}%
           </div>
         </div>
       </div>
 
       {/* Análise Detalhada */}
       <div>
-        <h4 className="mb-2 font-semibold">Análise Detalhada</h4>
+        <h4 className="mb-2 font-semibold">{t("result.detailedAnalysis")}</h4>
         <p className="text-sm leading-relaxed text-muted-foreground">
           {analysis.analise_detalhada}
         </p>
@@ -93,7 +93,7 @@ export function VerificationResultDisplay({ result }: VerificationResultProps) {
         <div>
           <h4 className="mb-2 flex items-center gap-2 font-semibold text-green-600 dark:text-green-400">
             <CheckCircle2 className="h-4 w-4" />
-            Elementos Verdadeiros
+            {t("result.trueElements")}
           </h4>
           <ul className="space-y-1">
             {analysis.elementos_verdadeiros.map((elemento, index) => (
@@ -102,7 +102,7 @@ export function VerificationResultDisplay({ result }: VerificationResultProps) {
                 className="flex items-start gap-2 text-sm text-muted-foreground"
               >
                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-green-500" />
-                <span dangerouslySetInnerHTML={{ __html: elemento }} />
+                <span>{elemento}</span>
               </li>
             ))}
           </ul>
@@ -114,7 +114,7 @@ export function VerificationResultDisplay({ result }: VerificationResultProps) {
         <div>
           <h4 className="mb-2 flex items-center gap-2 font-semibold text-red-600 dark:text-red-400">
             <XCircle className="h-4 w-4" />
-            Elementos Falsos
+            {t("result.falseElements")}
           </h4>
           <ul className="space-y-1">
             {analysis.elementos_falsos.map((elemento, index) => (
@@ -135,7 +135,7 @@ export function VerificationResultDisplay({ result }: VerificationResultProps) {
         <div>
           <h4 className="mb-2 flex items-center gap-2 font-semibold text-yellow-600 dark:text-yellow-400">
             <AlertTriangle className="h-4 w-4" />
-            Elementos Suspeitos
+            {t("result.suspiciousElements")}
           </h4>
           <ul className="space-y-1">
             {analysis.elementos_suspeitos.map((elemento, index) => (
@@ -156,7 +156,7 @@ export function VerificationResultDisplay({ result }: VerificationResultProps) {
         <div>
           <h4 className="mb-2 flex items-center gap-2 font-semibold text-orange-600 dark:text-orange-400">
             <AlertTriangle className="h-4 w-4" />
-            Indicadores de Desinformação
+            {t("result.disinformationIndicators")}
           </h4>
           <ul className="space-y-1">
             {analysis.indicadores_desinformacao.map((indicador, index) => (
@@ -175,7 +175,7 @@ export function VerificationResultDisplay({ result }: VerificationResultProps) {
       {/* Fontes Confiáveis */}
       {analysis.fontes_confiaveis.length > 0 && (
         <div>
-          <h4 className="mb-2 font-semibold">Fontes Confiáveis</h4>
+          <h4 className="mb-2 font-semibold">{t("result.reliableSources")}</h4>
           <ul className="space-y-1">
             {analysis.fontes_confiaveis.map((fonte, index) => (
               <li
@@ -194,15 +194,14 @@ export function VerificationResultDisplay({ result }: VerificationResultProps) {
         <div className="rounded-md border border-yellow-500/50 bg-yellow-500/10 p-4">
           <h4 className="mb-2 flex items-center gap-2 font-semibold text-yellow-700 dark:text-yellow-400">
             <AlertTriangle className="h-4 w-4" />
-            Limitação Temporal
+            {t("result.temporalLimitation")}
           </h4>
           <p className="mb-2 text-sm text-muted-foreground">
-            Esta análise pode ser afetada por limitações temporais da base de
-            conhecimento.
+            {t("result.temporalLimitationDescription")}
           </p>
           {analysis.limitacao_temporal.elementos_nao_verificaveis.length > 0 && (
             <div className="mb-2">
-              <p className="text-xs font-medium">Elementos não verificáveis:</p>
+              <p className="text-xs font-medium">{t("result.unverifiableElements")}:</p>
               <ul className="mt-1 space-y-1 text-xs text-muted-foreground">
                 {analysis.limitacao_temporal.elementos_nao_verificaveis.map(
                   (elemento, index) => (
@@ -214,7 +213,7 @@ export function VerificationResultDisplay({ result }: VerificationResultProps) {
           )}
           {analysis.limitacao_temporal.sugestoes_verificacao.length > 0 && (
             <div>
-              <p className="text-xs font-medium">Sugestões:</p>
+              <p className="text-xs font-medium">{t("result.suggestions")}:</p>
               <ul className="mt-1 space-y-1 text-xs text-muted-foreground">
                 {analysis.limitacao_temporal.sugestoes_verificacao.map(
                   (sugestao, index) => (
@@ -230,7 +229,7 @@ export function VerificationResultDisplay({ result }: VerificationResultProps) {
       {/* Recomendações */}
       {analysis.recomendacoes.length > 0 && (
         <div>
-          <h4 className="mb-2 font-semibold">Recomendações</h4>
+          <h4 className="mb-2 font-semibold">{t("result.recommendations")}</h4>
           <ul className="space-y-2">
             {analysis.recomendacoes.map((recomendacao, index) => (
               <li
@@ -250,7 +249,7 @@ export function VerificationResultDisplay({ result }: VerificationResultProps) {
         <div>
           <h4 className="mb-2 flex items-center gap-2 font-semibold">
             <ExternalLink className="h-4 w-4" />
-            Fontes Recentes Encontradas
+            {t("result.recentSources")}
           </h4>
           <div className="space-y-2">
             {result.realtimeData.slice(0, 3).map((fonte, index) => (

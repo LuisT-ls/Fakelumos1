@@ -17,7 +17,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const baseUrl = "https://fakelumos.vercel.app";
 
-  const localeMap: Record<string, any> = {
+  const localeMap: Record<string, { title: string; description: string }> = {
     "pt-BR": {
       title: "Fake Lumos - Detector de Fake News com IA",
       description:
@@ -67,7 +67,7 @@ export default async function LocaleLayout({
 }) {
   const { locale } = await params;
 
-  if (!routing.locales.includes(locale as any)) {
+  if (!routing.locales.includes(locale as (typeof routing.locales)[number])) {
     notFound();
   }
 

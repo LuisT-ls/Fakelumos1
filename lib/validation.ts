@@ -28,7 +28,7 @@ function validateEncoding(text: string): { isValid: boolean; error?: string } {
     const encoded = encoder.encode(normalized);
     decoder.decode(encoded);
     return { isValid: true };
-  } catch (error) {
+  } catch {
     return {
       isValid: false,
       error:
@@ -42,44 +42,42 @@ function validateEncoding(text: string): { isValid: boolean; error?: string } {
  */
 function detectInjectionPatterns(text: string): string[] {
   const flags: string[] = [];
-  const lowerText = text.toLowerCase();
-
   // Padrões SQL Injection
   const sqlPatterns = [
-    /(\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b.*\b(from|into|table|database|where)\b)/gi,
-    /('|(\\')|;|--|\*|\/\*|\*\/|xp_|sp_)/gi,
-    /(\bor\b\s*\d+\s*=\s*\d+)/gi,
-    /(\band\b\s*\d+\s*=\s*\d+)/gi,
+    /(\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b.*\b(from|into|table|database|where)\b)/i,
+    /('|(\\')|;|--|\*|\/\*|\*\/|xp_|sp_)/i,
+    /(\bor\b\s*\d+\s*=\s*\d+)/i,
+    /(\band\b\s*\d+\s*=\s*\d+)/i,
   ];
 
   // Padrões XSS
   const xssPatterns = [
-    /<script[^>]*>.*?<\/script>/gi,
-    /javascript:/gi,
-    /on\w+\s*=\s*["'][^"']*["']/gi,
-    /<iframe[^>]*>/gi,
-    /<object[^>]*>/gi,
-    /<embed[^>]*>/gi,
-    /<link[^>]*>/gi,
-    /<meta[^>]*>/gi,
-    /<style[^>]*>.*?<\/style>/gi,
-    /expression\s*\(/gi,
-    /vbscript:/gi,
-    /data:text\/html/gi,
+    /<script[^>]*>.*?<\/script>/i,
+    /javascript:/i,
+    /on\w+\s*=\s*["'][^"']*["']/i,
+    /<iframe[^>]*>/i,
+    /<object[^>]*>/i,
+    /<embed[^>]*>/i,
+    /<link[^>]*>/i,
+    /<meta[^>]*>/i,
+    /<style[^>]*>.*?<\/style>/i,
+    /expression\s*\(/i,
+    /vbscript:/i,
+    /data:text\/html/i,
   ];
 
   // Padrões de Command Injection
   const commandPatterns = [
-    /[;&|`$(){}[\]]/g,
-    /\b(cat|ls|pwd|whoami|id|uname|ps|kill|rm|mv|cp|chmod|chown)\b/gi,
-    /\$\{[^}]+\}/g,
-    /`[^`]+`/g,
+    /[;&|`$(){}[\]]/,
+    /\b(cat|ls|pwd|whoami|id|uname|ps|kill|rm|mv|cp|chmod|chown)\b/i,
+    /\$\{[^}]+\}/,
+    /`[^`]+`/,
   ];
 
   // Padrões de Path Traversal
   const pathPatterns = [
-    /\.\.\/|\.\.\\/g,
-    /\/etc\/passwd|\/proc\/self|\/windows\/system32/gi,
+    /\.\.\/|\.\.\\/,
+    /\/etc\/passwd|\/proc\/self|\/windows\/system32/i,
   ];
 
   // Verificar SQL Injection

@@ -1,9 +1,9 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 function getGenAI() {
-  const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+  const API_KEY = process.env.GEMINI_API_KEY;
   if (!API_KEY) {
-    throw new Error("NEXT_PUBLIC_GEMINI_API_KEY não está definida");
+    throw new Error("GEMINI_API_KEY não está definida");
   }
   return new GoogleGenerativeAI(API_KEY);
 }
@@ -57,8 +57,8 @@ Responda APENAS com um JSON válido no seguinte formato:
       explanation: parsed.explanation ?? "Análise não disponível",
       reasons: parsed.reasons ?? [],
     };
-  } catch (error) {
-    console.error("Erro ao verificar notícia:", error);
+  } catch {
+    console.error("Erro ao processar a verificação de notícia");
     throw new Error("Erro ao processar a verificação. Tente novamente.");
   }
 }

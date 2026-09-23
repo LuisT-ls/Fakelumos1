@@ -27,14 +27,23 @@ export async function searchGoogleCustom(
       throw new Error("Erro na busca do Google");
     }
 
-    const data = await response.json();
-    const items = data.items || [];
+    const data: unknown = await response.json();
+    const items =
+      typeof data === "object" && data !== null && "items" in data && Array.isArray(data.items)
+        ? data.items
+        : [];
 
-    return items.map((item: any) => ({
-      title: item.title,
-      link: item.link,
-      snippet: item.snippet,
-    }));
+    return items.flatMap((item) => {
+      if (typeof item !== "object" || item === null) return [];
+
+      const title = "title" in item && typeof item.title === "string" ? item.title : "";
+      const link = "link" in item && typeof item.link === "string" ? item.link : "";
+      const snippet =
+        "snippet" in item && typeof item.snippet === "string" ? item.snippet : "";
+
+      if (!title || !link) return [];
+      return [{ title, link, snippet }];
+    });
   } catch (error) {
     console.error("Erro na busca Google:", error);
     return [];
